@@ -1,9 +1,9 @@
 import React, { useState , useEffect } from 'react'
 import io from "socket.io-client"
-import Search from '../Search/Search';
 import './styles.css';
 import {api,scrapCifra} from '../../services/api'
 import parse from 'html-react-parser';
+import Popup from 'reactjs-popup';
 
 let socket;
 const CONNECTION_PORT = "localhost:4000";
@@ -122,65 +122,105 @@ function Room() {
       setInput("");
     }
   }
+
+  const styles = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+  };
   
   return (
-    <div className='inputs'>
+    <div className='everything'>
       {!loggedIn ? (
+        <div className='centered' style={styles}>
+          <div className='divInputs'>
+            <input type="text" placeholder='Nome' value={nome} onChange={(e) => { setNome(e.target.value) }}></input>
+            <input type="text" placeholder='Sala' value={sala} onChange={(e) => { setSala(e.target.value) }}></input>
+            <button className="button-61" onClick={connectToRoom}>Entrar</button>
+          </div>
+        </div>
+      ) : (
         <>
-          <input type="text" placeholder='Nome' value={nome} onChange={(e) => {setNome(e.target.value)}}></input>
-          <input type="text" placeholder='Sala' value={sala} onChange={(e) => {setSala(e.target.value)}}></input>
-          <button onClick={connectToRoom}>Entrar</button>
-        </>
+            <Popup
+              trigger={<button className="button-61"> Adicionar musica </button>}
+              modal
+              nested
+            >
+              {close => (
+                <div className="modal">
+                  <button className="close" onClick={close}>
+                    &times;
+                  </button>
+                  <div className="header"> Buscar música </div>
+                  <div className="content">
+                    {/* <div className="container"> */}
+                      {/* <h1 className="title">Buscar música</h1> */}
+                      <div className="containerInput">
+                        <input
+                          type="text"
+                          placeholder="Digite o nome da música..."
+                          style={{ width: "350px" }}
+                          value={input}
+                          onChange={(e) => { setDisplay(''); setInput(e.target.value); handleSearch(e.target.value) }}
+                        />
 
-      ):(
-        <>
-            <div className="container">
-              <h1 className="title">Buscar música</h1>
-              <div className="containerInput">
-                <input
-                  type="text"
-                  placeholder="Digite o nome da música..."
-                  style={{ width: "350px" }}
-                  value={input}
-                  onChange={(e) => { setDisplay(''); setInput(e.target.value); handleSearch(e.target.value) }}
-                />
-                {/* <button className="buttonSearch" onClick={handleSearch}>
-          <FiSearch size={25} color="#000"/>
-        </button> */}
-
-              </div>
-              {Object.keys(input).length > 0 && (
-                <div>
-                  {musica.map((msc) => {
-                    return (
-                      <li style={{ width: "350px" }} className="dropdown" key={msc.nome + " - " + msc.autor} onClick={addMusicToList.bind(this, msc)}>{msc.nome + " - " + msc.autor}</li>
-                    )
-                  })}
+                      </div>
+                      {Object.keys(input).length > 0 && (
+                        <div>
+                          {musica.map((msc) => {
+                            return (
+                              <li style={{ width: "350px" }} className="dropdown" key={msc.nome + " - " + msc.autor} onClick={addMusicToList.bind(this, msc)}>{msc.nome + " - " + msc.autor}</li>
+                            )
+                          })}
+                        </div>
+                      )}
+                    {/* </div> */}
+                  </div>
+                  <div className="actions">                   
+                    <button
+                      className="button"
+                      onClick={() => {
+                        console.log('modal closed ');
+                        close();
+                      }}
+                    >
+                      close modal
+                    </button>
+                  </div>
                 </div>
+              )}
+            </Popup>      
+            
 
-              )}
-              {Object.keys(display).length > 0 && (
-                <div className='musicInfo'>
-                  {parse(display)}
-                </div>
-              )}
-              <div className='members'>
-                {/* <li style={{ width: "350px" }} className="membersList" >{nome}</li> */}
-                {members.map((mem) => {
-                      return (
-                        <li style={{ width: "350px" }} className="membersList" key={mem.key}>{mem.key + " - " + mem.value}</li>
-                      )
-                })}                            
-              </div>
-              <div className='musicList'>
-                {/* <li style={{ width: "350px" }} className="membersList" >{nome}</li> */}
-                {musicaList.map((msc) => {
-                      return (
-                        <li style={{ width: "350px" }} className="music" key={msc.key}>{msc.value.nome + " - " + msc.value.autor}</li>
-                      )
-                })}                            
-              </div>
+
+
+
+
+
+          {Object.keys(display).length > 0 && (
+            <div className='musicInfo'>
+              {parse(display)}
             </div>
+          )}
+
+          <div className='members'>
+            {/* <li style={{ width: "350px" }} className="membersList" >{nome}</li> */}
+            {members.map((mem) => {
+              return (
+                <li style={{ width: "350px" }} className="membersList" key={mem.key}>{mem.key + " - " + mem.value}</li>
+              )
+            })}
+          </div>
+
+          <div className='musicList'>
+            {/* <li style={{ width: "350px" }} className="membersList" >{nome}</li> */}
+            {musicaList.map((obj) => {
+              return (
+                <li style={{ width: "350px" }} className="music" key={obj.userID}>{obj.music.nome + " - " + obj.music.autor}</li>
+              )
+            })}
+          </div>
         </>
       )}
     </div>

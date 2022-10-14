@@ -17,13 +17,13 @@ class Room {
   constructor(roomID) {
     this.name = roomID;
     this.members = new Map();
-    this.musicList = new Map();
+    this.musicList = [];
   }
   addMember(memberID, name){
     this.members.set(memberID, name);
   }
   addMusic(memberID, music){
-    this.musicList.set(memberID, music);
+    this.musicList.push({userID: memberID, music: music});
   }
 
 
@@ -79,9 +79,9 @@ io.on('connection',(socket) => {
     }
     tempRoomID = data.roomID;
     io.to(data.roomID).emit("update-members", [...rooms.get(data.roomID).members].map(([key, value]) => ({ key, value })));
-    console.log(rooms.get(data.roomID).musicList.size);
-    if(rooms.get(data.roomID).musicList.size > 0){      
-      io.to(socket.id).emit("update-music-list", [...rooms.get(data.roomID).musicList].map(([key, value]) => ({ key, value })));
+    console.log(rooms.get(data.roomID).musicList.length);
+    if(rooms.get(data.roomID).musicList.length > 0){      
+      io.to(socket.id).emit("update-music-list", rooms.get(data.roomID).musicList);
     }
     console.log(rooms.get(data.roomID).members)
   });
@@ -92,8 +92,8 @@ io.on('connection',(socket) => {
 
   socket.on('add-music', (data) => {
     rooms.get(data.roomID).addMusic(socket.id, data.music);
-    console.log(data.music);
-    io.to(data.roomID).emit("update-music-list", [...rooms.get(data.roomID).musicList].map(([key, value]) => ({ key, value })));
+    console.log(rooms.get(data.roomID).musicList);
+    io.to(data.roomID).emit("update-music-list", rooms.get(data.roomID).musicList);
   });
 
   socket.on('disconnect', () =>{
