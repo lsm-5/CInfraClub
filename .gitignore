@@ -1,0 +1,24 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/projeto-cm/node_modules
+/server/node_modules
+/projeto-cm/.pnp
+/projeto-cm.pnp.js
+
+# testing
+/projeto-cm/coverage
+
+# production
+/projeto-cm/build
+
+# misc
+/projeto-cm/.DS_Store
+/projeto-cm/.env.local
+/projeto-cm/.env.development.local
+/projeto-cm/.env.test.local
+/projeto-cm/.env.production.local
+
+/projeto-cm/npm-debug.log*
+/projeto-cm/yarn-debug.log*
+/projeto-cm/yarn-error.log*
