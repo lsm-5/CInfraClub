@@ -4,6 +4,13 @@ import './styles.css';
 import {api,scrapCifra} from '../../services/api'
 import parse from 'html-react-parser';
 import Popup from 'reactjs-popup';
+import Reorder, {
+  reorder,
+  reorderImmutable,
+  reorderFromTo,
+  reorderFromToImmutable
+} from 'react-reorder';
+import move from "lodash-move";
 
 let socket;
 const CONNECTION_PORT = "localhost:4000";
@@ -129,6 +136,14 @@ function Room() {
     justifyContent: 'center',
     height: '100vh',
   };
+
+  function onReorder (event, previousIndex, nextIndex, fromId, toId) {
+    setMusicaList(reorder(musicaList, previousIndex, nextIndex));
+  }
+
+  function print(){
+    console.log(musicaList);
+  }
   
   return (
     <div className='everything'>
@@ -213,14 +228,26 @@ function Room() {
             })}
           </div>
 
-          <div className='musicList'>
-            {/* <li style={{ width: "350px" }} className="membersList" >{nome}</li> */}
-            {musicaList.map((obj) => {
-              return (
-                <li style={{ width: "350px" }} className="music" key={obj.userID}>{obj.music.nome + " - " + obj.music.autor}</li>
-              )
-            })}
-          </div>
+          <button className="button-61" onClick={print}> show </button>
+
+            <Reorder
+              reorderId="my-list" // Unique ID that is used internally to track this list (required)
+              reorderGroup="reorder-group" // A group ID that allows items to be dragged between lists of the same group (optional)              
+              component="ul" // Tag name or Component to be used for the wrapping element (optional), defaults to 'div'
+              placeholderClassName="placeholder" // Class name to be applied to placeholder elements (optional), defaults to 'placeholder'
+              draggedClassName="dragged" // Class name to be applied to dragged elements (optional), defaults to 'dragged'
+              lock="horizontal"
+              onReorder={onReorder.bind(this)}
+            >
+              {/* <div className='musicList'> */}
+                {/* <li style={{ width: "350px" }} className="membersList" >{nome}</li> */}
+                {musicaList.map((obj) => {
+                  return (
+                    <li style={{ width: "350px" }} className="music" key={obj.music.nome + " - " + obj.music.autor}>{obj.music.nome + " - " + obj.music.autor}</li>
+                  )
+                })}
+              {/* </div> */}
+              </Reorder>
         </>
       )}
     </div>
