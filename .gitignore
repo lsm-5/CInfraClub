@@ -22,3 +22,6 @@
 /projeto-cm/npm-debug.log*
 /projeto-cm/yarn-debug.log*
 /projeto-cm/yarn-error.log*
+
+.todos
+todos

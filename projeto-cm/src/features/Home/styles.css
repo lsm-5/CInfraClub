@@ -73,7 +73,7 @@
     background-color: rgba(255, 255, 255, 0.2);
     padding: 15px;
     margin-top: 34px;
-    display: inline-block;
+    display: flex;
     border-radius: 8px;
     box-shadow: 1px 3px 8px rgba(0, 0, 0, 0.2);
 }
@@ -82,10 +82,31 @@
     background-color: transparent;
     border: 0;
     font-size: 20px;
-    margin-right: 8px;
     outline: none;
     
 }
+
+@media only screen and (max-width: 675px) {
+    .divInputs{
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 15px;
+        margin-top: 34px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 8px;
+        box-shadow: 1px 3px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .divInputs input{
+        background-color: transparent;
+        border: 0;
+        padding: 15px;
+        font-size: 20px;
+        outline: none;
+        
+    }
+}
+
 
 .entrarBttn{
     background-color: transparent;
@@ -96,6 +117,10 @@
     cursor: pointer;
 }
 
+.music-container{
+    height: 300px;
+    overflow-y: auto;
+}
 
 .music{
     background-color: rgba(255, 255, 255, 0.2);
@@ -104,6 +129,33 @@
     display: flex;
     border-radius: 8px;
     box-shadow: 1px 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dragged{
+    padding: 15px;
+    margin-top: 15px;
+    max-height: 20px;
+}
+
+.music > span {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: calc(100% - 20px);
+    white-space: nowrap;
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
+.music:hover{
+    cursor: grab;
+}
+
+.delete-button:hover {
+	font-size: 110%;
+	color: #c0392b;
 }
 
 /* CSS */
@@ -163,6 +215,15 @@
 .button-61:active {
   box-shadow: rgba(0, 0, 0, .2) 0 5px 5px -3px, rgba(0, 0, 0, .14) 0 8px 10px 1px, rgba(0, 0, 0, .12) 0 3px 14px 2px;
   background: #A46BF5;
+}
+
+.delete-button{
+    margin-left: auto; 
+    margin-right: 0;
+}
+
+.delete-button:hover{
+    cursor: pointer;
 }
 
 /*popup*/

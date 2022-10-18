@@ -1,7 +1,7 @@
-import React, { useState , useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import io from "socket.io-client"
 import './styles.css';
-import {api,scrapCifra} from '../../services/api'
+import { api, scrapCifra } from '../../services/api'
 import parse from 'html-react-parser';
 import Popup from 'reactjs-popup';
 import Reorder, {
@@ -11,30 +11,29 @@ import Reorder, {
   reorderFromToImmutable
 } from 'react-reorder';
 import move from "lodash-move";
+import {MdOutlineClose} from 'react-icons/md'
 
 let socket;
 const CONNECTION_PORT = "localhost:4000";
 
 function Room() {
-  
+
   const [nome, setNome] = useState('');
   const [sala, setSala] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
-  
+
   const connectToRoom = () => {
-    // console.log('a')
-    // socket = io(CONNECTION_PORT);
     setLoggedIn(true);
-    socket.emit('join-room', { roomID: sala, name: nome});
+    socket.emit('join-room', { roomID: sala, name: nome });
   }
 
   useEffect(() => {
-    socket = io(CONNECTION_PORT); 
+    socket = io(CONNECTION_PORT);
   }, [CONNECTION_PORT])
-  
 
-  
-  
+
+
+
   //Logic for search part
   const [input, setInput] = useState('');
   const [musica, setMusica] = useState([]);
@@ -44,39 +43,22 @@ function Room() {
 
 
   useEffect(() => {
-    socket.on('update-page', (data) =>{
+    socket.on('update-page', (data) => {
       setDisplay(data);
     });
-    socket.on('update-members', (data) =>{
+    socket.on('update-members', (data) => {
       setMembers(data);
-      console.log(data);
-      //Broadcast manda pa geral incluindo a msm pessoa, entao ta recebendo 2 vezes
     });
-    socket.on('update-music-list', (data) =>{
+    socket.on('update-music-list', (data) => {
       setMusicaList(data);
-      console.log(data);
-      //Broadcast manda pa geral incluindo a msm pessoa, entao ta recebendo 2 vezes
     });
-  
+
     return () => {
       socket.off('update-page');
       socket.off('update-members');
-      //socket.off('pong');
+      socket.off('update-music-list');
     }
   }, [])
-  
-
-  // if(loggedIn){
-  //   socket.on('update-page', (data) =>{
-  //     setDisplay(data);
-  //   });
-  //   socket.on('update-members', (data) =>{
-  //     setMembers(data);
-  //     console.log(data);
-  //     //Broadcast manda pa geral incluindo a msm pessoa, entao ta recebendo 2 vezes
-  //   })
-
-  // }
 
   async function getMusicInfo(e) {
     console.log(e)
@@ -84,42 +66,47 @@ function Room() {
     setMusica([]);
     const response = await scrapCifra.get(`/${e.autorB}/${e.nomeB}`);
     setDisplay(response.data);//na resposta do servidor
-    socket.emit('changing-music', {roomID: sala, music: response.data});
+    socket.emit('changing-music', { roomID: sala, music: response.data });
     //console.log(response.data);
   }
 
-  function addMusicToList(music){
-    socket.emit('add-music', {roomID: sala, music: music});
+  function addMusicToList(music) {
+    socket.emit('add-music', { roomID: sala, music: music });
+  }
+
+  function removeMusic(music){
+    console.log('first')
+    socket.emit('remove-music', {roomID: sala, music: music})
   }
 
   async function handleSearch(e) {
-    if(e.length <=0){
+    if (e.length <= 0) {
       return;
     }
-    if(e.trim() === ''){
+    if (e.trim() === '') {
       alert("digite algo");
       return;
     }
     try {
-      const response = await api.get('/',{params: { q: e }});
+      const response = await api.get('/', { params: { q: e } });
       const processed = JSON.parse(response.data.slice(1).slice(0, response.data.length - 3))
       //console.log(processed.response.docs.length);
       //console.log(processed);
-      if(processed && processed.response.docs.length > 0){
+      if (processed && processed.response.docs.length > 0) {
         let musicList = []
         for (let i = 0; i < processed.response.docs.length && i < 5; i++) {
           //const element = processed.response.docs[i]
-          if(processed.response.docs[i].d != null && processed.response.docs[i].u != null){
+          if (processed.response.docs[i].d != null && processed.response.docs[i].u != null) {
             let musica = {
               autor: processed.response.docs[i].a,
               nome: processed.response.docs[i].m,
               autorB: processed.response.docs[i].d,
               nomeB: processed.response.docs[i].u
-            }      
+            }
             musicList.push(musica);
           }
         }
-        
+
         //console.log(musicList)
         setMusica(musicList);
         //setInput("");
@@ -137,14 +124,14 @@ function Room() {
     height: '100vh',
   };
 
-  function onReorder (event, previousIndex, nextIndex, fromId, toId) {
+  function onReorder(event, previousIndex, nextIndex, fromId, toId) {
     setMusicaList(reorder(musicaList, previousIndex, nextIndex));
   }
 
-  function print(){
+  function print() {
     console.log(musicaList);
   }
-  
+
   return (
     <div className='everything'>
       {!loggedIn ? (
@@ -157,61 +144,55 @@ function Room() {
         </div>
       ) : (
         <>
-            <Popup
-              trigger={<button className="button-61"> Adicionar musica </button>}
-              modal
-              nested
-            >
-              {close => (
-                <div className="modal">
-                  <button className="close" onClick={close}>
-                    &times;
-                  </button>
-                  <div className="header"> Buscar música </div>
-                  <div className="content">
-                    {/* <div className="container"> */}
-                      {/* <h1 className="title">Buscar música</h1> */}
-                      <div className="containerInput">
-                        <input
-                          type="text"
-                          placeholder="Digite o nome da música..."
-                          style={{ width: "350px" }}
-                          value={input}
-                          onChange={(e) => { setDisplay(''); setInput(e.target.value); handleSearch(e.target.value) }}
-                        />
+          <Popup
+            trigger={<button className="button-61"> Adicionar musica </button>}
+            modal
+            nested
+          >
+            {close => (
+              <div className="modal">
+                <button className="close" onClick={close}>
+                  &times;
+                </button>
+                <div className="header"> Buscar música </div>
+                <div className="content">
+                  {/* <div className="container"> */}
+                  {/* <h1 className="title">Buscar música</h1> */}
+                  <div className="containerInput">
+                    <input
+                      type="text"
+                      placeholder="Digite o nome da música..."
+                      style={{ width: "350px" }}
+                      value={input}
+                      onChange={(e) => { setDisplay(''); setInput(e.target.value); handleSearch(e.target.value) }}
+                    />
 
-                      </div>
-                      {Object.keys(input).length > 0 && (
-                        <div>
-                          {musica.map((msc) => {
-                            return (
-                              <li style={{ width: "350px" }} className="dropdown" key={msc.nome + " - " + msc.autor} onClick={addMusicToList.bind(this, msc)}>{msc.nome + " - " + msc.autor}</li>
-                            )
-                          })}
-                        </div>
-                      )}
-                    {/* </div> */}
                   </div>
-                  <div className="actions">                   
-                    <button
-                      className="button"
-                      onClick={() => {
-                        console.log('modal closed ');
-                        close();
-                      }}
-                    >
-                      close modal
-                    </button>
-                  </div>
+                  {Object.keys(input).length > 0 && (
+                    <div>
+                      {musica.map((msc) => {
+                        return (
+                          <li style={{ width: "350px" }} className="dropdown" key={msc.nome + " - " + msc.autor} onClick={addMusicToList.bind(this, msc)}>{msc.nome + " - " + msc.autor}</li>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {/* </div> */}
                 </div>
-              )}
-            </Popup>      
-            
-
-
-
-
-
+                <div className="actions">
+                  <button
+                    className="button"
+                    onClick={() => {
+                      console.log('modal closed ');
+                      close();
+                    }}
+                  >
+                    close modal
+                  </button>
+                </div>
+              </div>
+            )}
+          </Popup>
 
           {Object.keys(display).length > 0 && (
             <div className='musicInfo'>
@@ -229,25 +210,32 @@ function Room() {
           </div>
 
           <button className="button-61" onClick={print}> show </button>
-
-            <Reorder
-              reorderId="my-list" // Unique ID that is used internally to track this list (required)
-              reorderGroup="reorder-group" // A group ID that allows items to be dragged between lists of the same group (optional)              
-              component="ul" // Tag name or Component to be used for the wrapping element (optional), defaults to 'div'
-              placeholderClassName="placeholder" // Class name to be applied to placeholder elements (optional), defaults to 'placeholder'
-              draggedClassName="dragged" // Class name to be applied to dragged elements (optional), defaults to 'dragged'
-              lock="horizontal"
-              onReorder={onReorder.bind(this)}
-            >
-              {/* <div className='musicList'> */}
+            <ul className='music-container'>
+              <Reorder
+                reorderId="my-list" // Unique ID that is used internally to track this list (required)
+                reorderGroup="reorder-group" // A group ID that allows items to be dragged between lists of the same group (optional)              
+                component="ul" // Tag name or Component to be used for the wrapping element (optional), defaults to 'div'
+                placeholderClassName="placeholder" // Class name to be applied to placeholder elements (optional), defaults to 'placeholder'
+                draggedClassName="dragged" // Class name to be applied to dragged elements (optional), defaults to 'dragged'
+                lock="horizontal"
+                holdTime={110}
+                onReorder={onReorder.bind(this)}
+                autoScroll={true}
+              >
+                {/* <div className='musicList'> */}
                 {/* <li style={{ width: "350px" }} className="membersList" >{nome}</li> */}
                 {musicaList.map((obj) => {
                   return (
-                    <li style={{ width: "350px" }} className="music" key={obj.music.nome + " - " + obj.music.autor}>{obj.music.nome + " - " + obj.music.autor}</li>
+                    <li style={{ width: "350px" }} className="music" key={obj.music.nome + " - " + obj.music.autor}>
+                      <span>{obj.music.nome + " - " + obj.music.autor}</span>
+                      <MdOutlineClose onClick={removeMusic.bind(this, obj)} className='delete-button' />
+                    </li>
                   )
                 })}
-              {/* </div> */}
+                {/* </div> */}
               </Reorder>
+
+            </ul>
         </>
       )}
     </div>

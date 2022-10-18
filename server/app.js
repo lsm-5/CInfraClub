@@ -23,7 +23,17 @@ class Room {
     this.members.set(memberID, name);
   }
   addMusic(memberID, music){
-    this.musicList.push({userID: memberID, music: music});
+    if(!this.musicList.find(e => e.music.nomeB === music.nomeB && e.music.autorB === music.autorB)){
+      this.musicList.push({userID: memberID, music: music});
+    }
+  }
+
+  removeMusic(obj){
+    console.log(obj)
+    this.musicList = this.musicList.filter(function(v,i) {
+      console.log(v.music.nomeB)
+      return(v.music.nomeB != obj.music.nomeB || v.music.autorB != obj.music.autorB)
+    })
   }
 
 
@@ -67,8 +77,8 @@ io.on('connection',(socket) => {
   let tempRoomID;
   socket.on('join-room', (data) =>{
     socket.join(data.roomID);
-    console.log( data.name + " joined room: " + data.roomID);
-    console.log(socket.id);
+    // console.log( data.name + " joined room: " + data.roomID);
+    // console.log(socket.id);
     if(!rooms.has(data.roomID)){
       let temp = new Room(data.roomID);
       temp.addMember(socket.id, data.name);
@@ -79,11 +89,11 @@ io.on('connection',(socket) => {
     }
     tempRoomID = data.roomID;
     io.to(data.roomID).emit("update-members", [...rooms.get(data.roomID).members].map(([key, value]) => ({ key, value })));
-    console.log(rooms.get(data.roomID).musicList.length);
+    //console.log(rooms.get(data.roomID).musicList.length);
     if(rooms.get(data.roomID).musicList.length > 0){      
       io.to(socket.id).emit("update-music-list", rooms.get(data.roomID).musicList);
     }
-    console.log(rooms.get(data.roomID).members)
+    //console.log(rooms.get(data.roomID).members)
   });
 
   socket.on('changing-music', (data) =>{
@@ -92,12 +102,17 @@ io.on('connection',(socket) => {
 
   socket.on('add-music', (data) => {
     rooms.get(data.roomID).addMusic(socket.id, data.music);
-    console.log(rooms.get(data.roomID).musicList);
+    //console.log(rooms.get(data.roomID).musicList);
     io.to(data.roomID).emit("update-music-list", rooms.get(data.roomID).musicList);
   });
 
+  socket.on('remove-music', (data) => {
+    rooms.get(data.roomID).removeMusic(data.music);
+    io.to(data.roomID).emit("update-music-list", rooms.get(data.roomID).musicList);
+  })
+
   socket.on('disconnect', () =>{
-    console.log('user dced');
+    //console.log('user dced');
     if(rooms.has(tempRoomID)){
       let temp = rooms.get(tempRoomID);
       if(temp.members.has(socket.id)){
