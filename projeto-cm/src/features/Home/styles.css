@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Fuzzy+Bubbles');
+
 .container{
     height: 100vh;
     display: flex;
@@ -63,10 +65,40 @@
     font-size: 24px;
 }
 
-.musicInfo{
+.musicInfo{    
     display: flex;
     align-items: center;
     flex-direction: column;
+}
+
+.musicInfo pre{
+    font-family: 'Fuzzy Bubbles', cursive;
+    font-size: clamp(10px, 3vw, 20px);
+}
+
+
+.musicInfo pre b{
+    --c: #6200ee; /* the color */
+  
+  color: #0000;
+  background: 
+    linear-gradient(90deg,#fff 50%,var(--c) 0) calc(100% - var(--_p,0%))/200%,
+    linear-gradient(var(--c) 0 0) 0% 100%/var(--_p,0%) no-repeat,
+    var(--_c,#0000);
+  -webkit-background-clip: text,padding-box,padding-box;
+          background-clip: text,padding-box,padding-box;
+  transition: 0s ,color .2s,background-color .2s;
+  border-radius: 3px;
+}
+
+.musicInfo pre b:hover{
+    cursor: pointer;
+    padding: 0 4px;
+    margin: 0 -4px;
+    color: #fff;
+    --_c: var(--c);
+    --_p: 100%;    
+    transition: 0.2s,background-color 0s .2s;
 }
 
 .divInputs{
@@ -81,10 +113,11 @@
 .divInputs input{
     background-color: transparent;
     border: 0;
-    font-size: 20px;
+    font-size: 30px;
     outline: none;
     
 }
+
 
 @media only screen and (max-width: 675px) {
     .divInputs{
@@ -105,6 +138,7 @@
         outline: none;
         
     }
+    
 }
 
 
@@ -120,21 +154,39 @@
 .music-container{
     height: 300px;
     overflow-y: auto;
+    overflow-anchor: none;
 }
 
-.music{
+.temp{
+    width: 300px;
+}
+
+@media only screen and (max-width: 350px) {
+    .temp{
+        width: 50vw;
+    }
+}
+
+.temp .music{
     background-color: rgba(255, 255, 255, 0.2);
     padding: 15px;
     margin-top: 15px;
     display: flex;
     border-radius: 8px;
     box-shadow: 1px 3px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
 }
 
-.dragged{
-    padding: 15px;
-    margin-top: 15px;
-    max-height: 20px;
+.temp.dragged{
+    cursor: grabbing;
+}
+
+.temp.dragged .music{
+    cursor: grabbing;
+}
+
+.temp.dragged .delete-button{
+    pointer-events: none;  
 }
 
 .music > span {
@@ -149,9 +201,6 @@
     user-select: none; /* Standard */
 }
 
-.music:hover{
-    cursor: grab;
-}
 
 .delete-button:hover {
 	font-size: 110%;
@@ -230,7 +279,7 @@
 
 .modal {
     font-size: 12px;
-    background-color: #292d3e;
+    background-color: #6200ee;
     border: 1px solid #464545;
     color: #fff;
     border-radius: 9px;
@@ -241,7 +290,6 @@
     border-bottom: 1px solid gray;
     font-size: 18px;
     text-align: center;
-    padding: 5px;
 }
 
 .modal>.content {

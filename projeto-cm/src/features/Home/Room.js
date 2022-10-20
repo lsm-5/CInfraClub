@@ -41,7 +41,6 @@ function Room() {
   const [members, setMembers] = useState([]);
   const [musicaList, setMusicaList] = useState([]);
 
-
   useEffect(() => {
     socket.on('update-page', (data) => {
       setDisplay(data);
@@ -64,9 +63,9 @@ function Room() {
     console.log(e)
     setInput('');
     setMusica([]);
-    const response = await scrapCifra.get(`/${e.autorB}/${e.nomeB}`);
+    const response = await scrapCifra.get(`/${e.music.autorB}/${e.music.nomeB}`);
     setDisplay(response.data);//na resposta do servidor
-    socket.emit('changing-music', { roomID: sala, music: response.data });
+    //socket.emit('changing-music', { roomID: sala, music: response.data });
     //console.log(response.data);
   }
 
@@ -74,7 +73,8 @@ function Room() {
     socket.emit('add-music', { roomID: sala, music: music });
   }
 
-  function removeMusic(music){
+  function removeMusic(music, event){
+    event.stopPropagation();
     console.log('first')
     socket.emit('remove-music', {roomID: sala, music: music})
   }
@@ -117,6 +117,11 @@ function Room() {
     }
   }
 
+  function resetDisplay(){
+    setDisplay('');
+    console.log(display)
+  }
+
   const styles = {
     display: 'flex',
     alignItems: 'center',
@@ -125,6 +130,7 @@ function Room() {
   };
 
   function onReorder(event, previousIndex, nextIndex, fromId, toId) {
+    // setDraggin(true);
     setMusicaList(reorder(musicaList, previousIndex, nextIndex));
   }
 
@@ -148,6 +154,7 @@ function Room() {
             trigger={<button className="button-61"> Adicionar musica </button>}
             modal
             nested
+            onOpen={resetDisplay}
           >
             {close => (
               <div className="modal">
@@ -195,9 +202,9 @@ function Room() {
           </Popup>
 
           {Object.keys(display).length > 0 && (
-            <div className='musicInfo'>
+            <span className='musicInfo'>
               {parse(display)}
-            </div>
+            </span>
           )}
 
           <div className='members'>
@@ -210,7 +217,7 @@ function Room() {
           </div>
 
           <button className="button-61" onClick={print}> show </button>
-            <ul className='music-container'>
+            <div className='music-container'>
               <Reorder
                 reorderId="my-list" // Unique ID that is used internally to track this list (required)
                 reorderGroup="reorder-group" // A group ID that allows items to be dragged between lists of the same group (optional)              
@@ -218,24 +225,27 @@ function Room() {
                 placeholderClassName="placeholder" // Class name to be applied to placeholder elements (optional), defaults to 'placeholder'
                 draggedClassName="dragged" // Class name to be applied to dragged elements (optional), defaults to 'dragged'
                 lock="horizontal"
-                holdTime={110}
+                holdTime={150}
                 onReorder={onReorder.bind(this)}
                 autoScroll={true}
               >
                 {/* <div className='musicList'> */}
                 {/* <li style={{ width: "350px" }} className="membersList" >{nome}</li> */}
                 {musicaList.map((obj) => {
-                  return (
-                    <li style={{ width: "350px" }} className="music" key={obj.music.nome + " - " + obj.music.autor}>
-                      <span>{obj.music.nome + " - " + obj.music.autor}</span>
-                      <MdOutlineClose onClick={removeMusic.bind(this, obj)} className='delete-button' />
-                    </li>
+                  return (  
+                    <div className='temp' key={obj.music.nome + " - " + obj.music.autor}>
+                      <li className="music" onClick={getMusicInfo.bind(this, obj)}>
+                        <span>{obj.music.nome + " - " + obj.music.autor}</span>
+                        <MdOutlineClose onClick={removeMusic.bind(this, obj)} className='delete-button' />
+                      </li>
+                      
+                    </div>                 
                   )
                 })}
                 {/* </div> */}
               </Reorder>
 
-            </ul>
+            </div>
         </>
       )}
     </div>
