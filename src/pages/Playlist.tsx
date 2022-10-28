@@ -4,8 +4,11 @@ import { Heading, Stack, Box, SimpleGrid, Text, HStack, Modal,
   ModalCloseButton, useDisclosure, VStack, 
 } from '@chakra-ui/react';
 import { DeleteIcon, AddIcon, EditIcon } from '@chakra-ui/icons'
+import { useHistory } from 'react-router-dom';
 
 const Playlist: React.FC = () => {
+  const history = useHistory();
+
   const [playlist, setPlaylist] = useState([
     {
       id: "1",
@@ -58,7 +61,7 @@ const Playlist: React.FC = () => {
     <Stack align="center" justify="start" flex={1} minH="100vh" p="5%" minW="90vw">
        <Box position="absolute" top={10} right={100}>
         <HStack>
-          <EditIcon w={5} h={5} color="red.500" />
+          <EditIcon cursor={"pointer"} w={5} h={5} color="red.500" onClick={() => history.push('/editar_sala')} />
           <Heading  as='h3' size='sm'>Sala #12345</Heading>
         </HStack>
       </Box>

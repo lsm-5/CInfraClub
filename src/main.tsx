@@ -12,8 +12,10 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <ChakraProvider>
       <BrowserRouter>
         <Switch>
-          <Route exact path="/" component={EditRoom} />
+          <Route exact path="/" component={Room} />
           <Route path="/sala" component={Playlist} />
+          <Route path="/criar_sala" component={CreateRoom} />
+          <Route path="/editar_sala" component={EditRoom} />
         </Switch>
       </BrowserRouter>
     </ChakraProvider>

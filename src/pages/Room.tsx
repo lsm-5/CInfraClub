@@ -15,8 +15,7 @@ const Room: React.FC = () => {
         </Stack>
         
         <VStack>
-          <Input placeholder='Digite o nome da sala' size="md" />
-          <Input placeholder='Digite a senha da sala' size="md" />
+          <Input placeholder='Digite o código da sala' size="md" />
         </VStack>
 
         <HStack justify="space-between">
@@ -24,7 +23,7 @@ const Room: React.FC = () => {
             Entrar na sala
           </Button>
 
-          <Button colorScheme='teal' size='md'>
+          <Button onClick={() => history.push('/criar_sala')} colorScheme='teal' size='md'>
             Criar sala
           </Button> 
         </HStack>
