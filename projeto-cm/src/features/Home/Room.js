@@ -59,14 +59,132 @@ function Room() {
     }
   }, [])
 
+  function getCypher(array, pos){
+    let cypher = '';
+    let found = false;
+    for (let i = pos; i < array.length && !found; i++) {
+      if(array[i] !== ' '){
+        cypher += array[i]
+      }else{
+        found = true;
+      }
+    }
+    return cypher;
+  }
+
   async function getMusicInfo(e) {
     console.log(e)
     setInput('');
     setMusica([]);
     const response = await scrapCifra.get(`/${e.music.autorB}/${e.music.nomeB}`);
+
+
+    //Parsing
+    let s = JSON.stringify(response.data);
+    s = s.replaceAll('<b>','').replaceAll('</b>','').replaceAll('<pre>','').replaceAll('</pre>','');
+    let arrayLines = s.split('\\n');
+    let mapLetra = []
+    console.log(arrayLines);
+    console.log(arrayLines[2].length);
+    console.log(arrayLines[3].length)
+    for (let i = 0; i < arrayLines.length; i++) {
+      if (!arrayLines[i].includes('[Intro]') && arrayLines[i].trim() !== '' && arrayLines[i+1]) {
+        //console.log(arrayLines[i].split(/(\s+)/).filter(element => element));
+        let cifras = arrayLines[i].split('');
+        console.log(arrayLines[i].split(''))
+        //let cifrasLength = cifras.filter(element => element).length;
+        //console.log(cifrasLength);
+        let counter = 0;
+
+        //let arrAux = [];
+
+        // for (let i = 0; i < cifras.length; i++) {
+        //   if (cifras[i][0] === " ") {
+        //     let tam = cifras[i].length;
+
+        //     for (let j = 0; j < tam; j++) {
+        //       arrAux.push("");
+        //     }
+        //   } else {
+        //     arrAux.push(cifras[i]);
+        //   }
+        // }
+        let cifrasLength = 0;
+        let wordI = false;
+        for (let x = 0; x < cifras.length; x++) {
+          if(cifras[x] !== ' '){
+            wordI = true;
+            if(x+1 >= cifras.length){
+              cifrasLength++;
+            }            
+          }else{
+            if(wordI){
+              cifrasLength++;
+            }
+            wordI = false
+          }
+          
+        }
+        console.log(cifrasLength)
+        let passI = false;
+        for (let y = 0; y < cifras.length; y++) {
+          
+          //const firstCharIndex = arrayLines[i].match('[a-zA-Z]').index;
+          if(cifras[y] !== ' '){
+            if(!passI){
+
+              passI = true;
+              //let firstCharIndex = cifras[y].match('[a-zA-Z]').index;
+              counter++; 
+              console.log(counter)         
+              let words = arrayLines[i+1].split(' ');
+              console.log(words)
+              let totalLength = 0;
+              let pastWordLength = 0;
+              let skip = false;
+              for (let j = 0; j < words.length && !skip; j++) {    
+                if(words.length > 1 && (j + 1 < words.length) ){
+                  pastWordLength = totalLength;
+                  totalLength += words[j].length +1;
+                }else{
+                  pastWordLength = totalLength;
+                  totalLength += words[j].length
+                }
+                if(counter === 3){
+                  console.log(y);
+                  console.log(totalLength);
+                }
+  
+                if(/*firstCharIndex*/y <= totalLength || j + 1 == words.length){
+                  let obj = {
+                    palavra: words[j],
+                    cifra: getCypher(cifras,y),
+                    y: y,
+                    pastWordLength: pastWordLength,
+                    pos: y - pastWordLength
+                  }
+                  mapLetra.push(obj);
+                  skip = true;
+                  if(counter >= cifrasLength){
+                    i++;
+                    console.log('first')
+                  }
+                }
+            }
+              
+            }        
+
+          }else{
+            passI = false;
+          }
+          
+        }
+      }      
+    }
+    console.log(mapLetra)
     setDisplay(response.data);//na resposta do servidor
     //socket.emit('changing-music', { roomID: sala, music: response.data });
-    //console.log(response.data);
+    //console.log(response);
   }
 
   function addMusicToList(music) {
