@@ -3,10 +3,12 @@ import { Heading, Stack, Box, Text, Input, VStack, HStack, Image, Button } from 
 import { DeleteIcon, AddIcon, EditIcon } from '@chakra-ui/icons'
 import ImgCreateRoom from '../assets/Authentication-pana.svg'
 import { useHistory } from 'react-router-dom';
-import { create, Sala } from '../rooms';
+import { createSala } from '../rooms';
 
 const CreateRoom: React.FC = () => {
   const history = useHistory();
+  const [value, setValue] = React.useState('')
+  const handleChange = (event: { target: { value: React.SetStateAction<string>; }; }) => setValue(event.target.value)
 
   return (
     <Stack align="center" justify="start" flex={1} minH="100vh" p="5%" minW="90vw">
@@ -26,9 +28,9 @@ const CreateRoom: React.FC = () => {
         <Box bg="purple.500" w="300" h="300" p="4">
           <VStack h={'100%'} justifyContent={"center"} alignItems="start">
             <Text color="white">Nome da Sala:</Text>
-            <Input color="white" placeholder='Digite o nome' size="md" _placeholder={{ color: 'white' }} />
+            <Input color="white" placeholder='Digite o nome' size="md" _placeholder={{ color: 'white' }} value={value} onChange={handleChange} />
 
-            <Button onClick={() => { create({name:"teste", repertorio:null, senha:"123"}); console.log("click") }} colorScheme='cyan' size='md' alignSelf={'flex-end'} justifySelf="flex-end">
+            <Button onClick={() => { createSala(value) }} colorScheme='cyan' size='md' alignSelf={'flex-end'} justifySelf="flex-end">
               Criar
             </Button>
           </VStack>
