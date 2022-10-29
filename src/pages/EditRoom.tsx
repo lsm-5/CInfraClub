@@ -3,9 +3,12 @@ import { Heading, Stack, Box, Text, Input,VStack, HStack, Image, Button } from '
 import { DeleteIcon, AddIcon, EditIcon } from '@chakra-ui/icons'
 import ImgEditRoom from '../assets/Instagram-Video-Streaming-pana.svg' 
 import { useHistory } from 'react-router-dom';
+import {useInfo} from '../hooks/info';
 
 const EditRoom: React.FC = () => {
   const history = useHistory();
+  const { room, updateSala, removeSala } = useInfo();
+  const [name, setName] = useState('')
 
   return (
     <Stack align="center" justify="start" flex={1} minH="100vh" p="5%" minW="90vw">
@@ -22,14 +25,22 @@ const EditRoom: React.FC = () => {
         
       <HStack>
         <Box bg="purple.500" w="500" h="500" p="4">
-          <VStack h={'100%'} justifyContent={"center"} alignItems="start">
-            <Text color="white">Nome da Sala:</Text>
-            <Input color="white" placeholder='Digite o nome' size="md" _placeholder={{ color: 'white' }}/>
+          <VStack h={'100%'} justifyContent={"space-between"} alignItems="start">
+            <Stack justifyContent={"center"} alignItems="start" flex={1}>
+              <Text color="white">Nome da Sala:</Text>
+              <Input color="white" defaultValue={room?.name} onChange={event => setName(event.target.value)} placeholder='Digite o nome' size="md" _placeholder={{ color: 'white' }}/>
 
-            <Button onClick={() => {}} colorScheme='cyan' size='md' alignSelf={'flex-end'} justifySelf="flex-end">
-              Atualizar
+
+              <Button onClick={() => updateSala(name)} colorScheme='cyan' size='md' alignSelf={'flex-end'} justifySelf="flex-end" color={"#ffffff"}>
+                Atualizar
+              </Button>
+            </Stack>
+
+            <Button onClick={() => removeSala(room?.id)} colorScheme='red' size='md' alignSelf={'flex-end'} justifySelf="flex-end">
+                Excluir Sala
             </Button>
           </VStack>
+          
         </Box>
         <Image src={ImgEditRoom} alt="Edit Room" w="300" h="500" />
       </HStack>

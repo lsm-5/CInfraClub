@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { Heading, Stack, Input, Button, HStack, VStack } from '@chakra-ui/react';
+import { Heading, Stack, Input, Button, HStack, VStack, useToast } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import background from "../assets/bg2.jpg";
-import { getSala } from '../functions/rooms';
+import {useInfo} from '../hooks/info';
 
 const Room: React.FC = () => {
   const history = useHistory();
   const [value, setValue] = React.useState('')
   const handleChange = (event: { target: { value: React.SetStateAction<string>; }; }) => setValue(event.target.value)
+  const { room, getSala } = useInfo();
+  const toast = useToast()
+
+  async function onHandleGetRoom(senha: string){
+    await getSala(senha);
+  }
 
   return (
     <div style={{ backgroundImage: `url(${background})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }}>
@@ -25,7 +31,7 @@ const Room: React.FC = () => {
           </VStack>
 
           <HStack justify="space-between">
-            <Button onClick={() => { getSala(value); /*history.push('/sala')*/ }} colorScheme='teal' size='md'>
+            <Button onClick={() => onHandleGetRoom(value)} colorScheme='teal' size='md'>
               Entrar na sala
             </Button>
 

@@ -1,14 +1,31 @@
 import React, { useState } from 'react';
-import { Heading, Stack, Box, Text, Input, VStack, HStack, Image, Button } from '@chakra-ui/react';
+import { Heading, Stack, Box, Text, Input, VStack, HStack, Image, Button, useToast } from '@chakra-ui/react';
 import { DeleteIcon, AddIcon, EditIcon } from '@chakra-ui/icons'
 import ImgCreateRoom from '../assets/Authentication-pana.svg'
 import { useHistory } from 'react-router-dom';
-import { createSala } from '../rooms';
+import {useInfo} from '../hooks/info';
 
 const CreateRoom: React.FC = () => {
   const history = useHistory();
   const [value, setValue] = React.useState('')
   const handleChange = (event: { target: { value: React.SetStateAction<string>; }; }) => setValue(event.target.value)
+  const { createSala } = useInfo();
+  const toast = useToast()
+
+  async function onHandleCreateRoom(name: string){
+    await createSala(name);
+  }
+  
+  function ToastExample(title: string, desc: string, status: 'success' | 'error' | 'warning') {
+    toast({
+      title,
+      description: desc,
+      status: status,
+      duration: 3000,
+      isClosable: true,
+      position: 'top-right',
+    })
+  }
 
   return (
     <Stack align="center" justify="start" flex={1} minH="100vh" p="5%" minW="90vw">
