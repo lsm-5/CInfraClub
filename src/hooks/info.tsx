@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, where, getDoc } from 'firebase/firestore';
 const COLLECTION_SALAS = "Salas";
-import {useToast} from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 import db from '../firebase-config';
 
 type Sala = {
@@ -42,16 +42,17 @@ interface Props {
   children: React.ReactNode;
 }
 
-const InfoProvider = ({children}: Props) => {
+const InfoProvider = ({ children }: Props) => {
   const [room, setRoom] = useState<Sala | null>(null);
   const [playlist, setPlaylist] = useState<Music[]>([])
   const toast = useToast()
 
   useEffect(() => {
-    if (room !== null){
+    if (room !== null) {
       // todo: pegar playlist (a coleção toda) e armazenar na variável playlist
+      // ficou dentro de getSala
     }
-  },[room])
+  }, [room])
 
   const addMusic = async (music: Music): Promise<void> => {
     // todo: vai pegar esse dados, criar um objeto e armazenar na coleção playlist dentro da sala como um documento novo
@@ -60,8 +61,8 @@ const InfoProvider = ({children}: Props) => {
     GenerateToast("Sucesso", "A música foi adicionada", "success");
   }
 
-  const removeMusic = async(id: string | undefined): Promise<void> => {
-    if (id === undefined){
+  const removeMusic = async (id: string | undefined): Promise<void> => {
+    if (id === undefined) {
       GenerateToast("Erro", "Id da sala inválido", "error");
       return;
     }
@@ -88,26 +89,40 @@ const InfoProvider = ({children}: Props) => {
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
-        setRoom({
-            id: querySnapshot.docs[0].id,
-            ...querySnapshot.docs[0].data(),
-        } as Sala)
-        GenerateToast('Sucesso', 'Bem-vindo ao CInfraClub', 'success')
+      const playlistId = (await getDocs(
+        collection(db, COLLECTION_SALAS + "/" + querySnapshot.docs[0].id + "/playlist")
+      )).docs[0].id
+      const playlistSnapshot = await getDocs(
+        collection(db, COLLECTION_SALAS + "/" + querySnapshot.docs[0].id + "/playlist/" + playlistId + "/Musica")
+      )
+      const musicas: Array<Music> = [];
+      playlistSnapshot.docs.map((_data) => {
+        musicas.push({
+          id: _data.id,
+          ..._data.data()
+        } as Music);
+      });
+      setPlaylist(musicas)
+      setRoom({
+        id: querySnapshot.docs[0].id,
+        ...querySnapshot.docs[0].data(),
+      } as Sala)
+      GenerateToast('Sucesso', 'Bem-vindo ao CInfraClub', 'success')
     } else {
-        setRoom(null);
-        GenerateToast('Erro', 'Sala não encontrada', 'error')
+      setRoom(null);
+      GenerateToast('Erro', 'Sala não encontrada', 'error')
     }
   }
 
   const updateSala = async (name: string): Promise<void> => {
-    if (name === ''){
+    if (name === '') {
       GenerateToast("Erro", "Nome de sala inválido", "error");
       return;
     }
 
     const reference = doc(collection(db, COLLECTION_SALAS), room?.id);
-    await updateDoc(reference, {name});
-  
+    await updateDoc(reference, { name });
+
     getSala(room!.senha)
     GenerateToast("Sucesso", "Sua sala foi atualizada", "success");
 
@@ -115,37 +130,36 @@ const InfoProvider = ({children}: Props) => {
 
   function generatePassword() {
     var length = 6,
-        charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        retVal = "";
+      charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+      retVal = "";
     for (var i = 0, n = charset.length; i < length; ++i) {
-        retVal += charset.charAt(Math.floor(Math.random() * n));
+      retVal += charset.charAt(Math.floor(Math.random() * n));
     }
     return retVal;
-}
+  }
 
   const createSala = async (name: string): Promise<void> => {
-    if (name === ''){
+    if (name === '') {
       GenerateToast("Erro", "Nome de sala inválido", "error");
       return;
     }
 
     const reference = collection(db, COLLECTION_SALAS);
     const sala = { name: name, senha: generatePassword() }
-    // const playlistRef = collection(db, COLLECTION_SALAS + "/" + docRef.id + "/" + "playlist");
-    // await addDoc(playlistRef, {});
-    // await updateSala(docRef.id, sala)
-    await addDoc(reference, sala);
+    const docRef = await addDoc(reference, sala);
+    const playlistRef = collection(db, COLLECTION_SALAS + "/" + docRef.id + "/" + "playlist");
+    await addDoc(playlistRef, {});
     GenerateToast("Sucesso", "Sua sala foi criada", "success");
 
     console.log('senha', sala.senha)
-    
+
     getSala(sala.senha);
 
-    
+
   };
 
   const removeSala = async (id: string | undefined) => {
-    if (removeSala === undefined){
+    if (removeSala === undefined) {
       GenerateToast("Erro", "Id da sala inválido", "error");
       return;
     }
@@ -200,4 +214,4 @@ function useInfo(): InfoContext {
   return context;
 }
 
-export {InfoProvider, useInfo};
+export { InfoProvider, useInfo };
