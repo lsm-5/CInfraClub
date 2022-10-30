@@ -34,6 +34,7 @@ interface InfoContext {
   playlist: Music[];
   addMusic: (music: Music) => Promise<void>;
   removeMusic: (id: string | undefined) => Promise<void>;
+  getPlaylist: (id: string | undefined) => Promise<void>;
 }
 
 const InfoContext = createContext<InfoContext | null>(null);
@@ -50,13 +51,19 @@ const InfoProvider = ({ children }: Props) => {
   useEffect(() => {
     if (room !== null) {
       // todo: pegar playlist (a coleção toda) e armazenar na variável playlist
-      // ficou dentro de getSala
+      // felipe: não consegui usar função assíncrona aqui dentro
     }
   }, [room])
 
   const addMusic = async (music: Music): Promise<void> => {
-    // todo: vai pegar esse dados, criar um objeto e armazenar na coleção playlist dentro da sala como um documento novo
-    // todo: vai atualizar a variavel playlist daqui
+    // todo(done): vai pegar esse dados, criar um objeto e armazenar na coleção playlist dentro da sala como um documento novo
+    // todo(done): vai atualizar a variavel playlist daqui
+    const playlistId = (await getDocs(
+      collection(db, COLLECTION_SALAS + "/" + room?.id + "/playlist")
+    )).docs[0].id
+    const musicasRef = collection(db, COLLECTION_SALAS + "/" + room?.id + "/playlist/" + playlistId + "/Musica");
+    await addDoc(musicasRef, music);
+    await getPlaylist(room?.id)
 
     GenerateToast("Sucesso", "A música foi adicionada", "success");
   }
@@ -66,8 +73,14 @@ const InfoProvider = ({ children }: Props) => {
       GenerateToast("Erro", "Id da sala inválido", "error");
       return;
     }
-    // todo: vai pegar o id recebido como parametro e o id da variavel room daqui e vai remover a musica da playlist
-    // todo: vai atualizar a variavel playlist daqui
+    // todo(done): vai pegar o id recebido como parametro e o id da variavel room daqui e vai remover a musica da playlist
+    // todo(done): vai atualizar a variavel playlist daqui
+    const playlistId = (await getDocs(
+      collection(db, COLLECTION_SALAS + "/" + room?.id + "/playlist")
+    )).docs[0].id
+    const musicRef = doc(collection(db, COLLECTION_SALAS + "/" + room?.id + "/playlist/" + playlistId + "/Musica"), id);
+    await deleteDoc(musicRef);
+    await getPlaylist(room?.id)
 
     GenerateToast("Sucesso", "A música foi removida", "success");
   }
@@ -89,29 +102,37 @@ const InfoProvider = ({ children }: Props) => {
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
-      const playlistId = (await getDocs(
-        collection(db, COLLECTION_SALAS + "/" + querySnapshot.docs[0].id + "/playlist")
-      )).docs[0].id
-      const playlistSnapshot = await getDocs(
-        collection(db, COLLECTION_SALAS + "/" + querySnapshot.docs[0].id + "/playlist/" + playlistId + "/Musica")
-      )
-      const musicas: Array<Music> = [];
-      playlistSnapshot.docs.map((_data) => {
-        musicas.push({
-          id: _data.id,
-          ..._data.data()
-        } as Music);
-      });
-      setPlaylist(musicas)
       setRoom({
         id: querySnapshot.docs[0].id,
         ...querySnapshot.docs[0].data(),
       } as Sala)
+      await getPlaylist(querySnapshot.docs[0].id)
       GenerateToast('Sucesso', 'Bem-vindo ao CInfraClub', 'success')
     } else {
       setRoom(null);
       GenerateToast('Erro', 'Sala não encontrada', 'error')
     }
+  }
+
+  const getPlaylist = async (id: string | undefined): Promise<void> => {
+    if (getPlaylist === undefined) {
+      GenerateToast("Erro", "Id da sala inválido", "error");
+      return;
+    }
+    const playlistId = (await getDocs(
+      collection(db, COLLECTION_SALAS + "/" + id + "/playlist")
+    )).docs[0].id
+    const playlistSnapshot = await getDocs(
+      collection(db, COLLECTION_SALAS + "/" + id + "/playlist/" + playlistId + "/Musica")
+    )
+    const musicas: Array<Music> = [];
+    playlistSnapshot.docs.map((_data) => {
+      musicas.push({
+        id: _data.id,
+        ..._data.data()
+      } as Music);
+    });
+    setPlaylist(musicas)
   }
 
   const updateSala = async (name: string): Promise<void> => {

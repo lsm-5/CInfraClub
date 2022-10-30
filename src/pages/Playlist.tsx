@@ -14,28 +14,24 @@ const Playlist: React.FC = () => {
 
   const [searchMusic, setSearchMusic] = useState([
     {
-      id: "1",
       name: "musica sugestão 1",
       author: "Autor 1",
       tom: "",
       cifra: "",
     },
     {
-      id: "2",
       name: "musica sugestão 2",
       author: "Autor 2",
       tom: "",
       cifra: "",
     },
     {
-      id: "3",
       name: "musica sugestão 3",
       author: "Autor 3",
       tom: "",
       cifra: "",
     },
     {
-      id: "4",
       name: "musica sugestão 4",
       author: "Autor 4",
       tom: "",
