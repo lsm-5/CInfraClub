@@ -220,6 +220,7 @@ function Room() {
     //console.log(e)
     setInput('');
     setMusica([]);
+    movedCypher.current = new Map();
     const response = await scrapCifra.get(`/${e.music.autorB}/${e.music.nomeB}`);
     setDisplay(response.data);//na resposta do servidor
     //print()
