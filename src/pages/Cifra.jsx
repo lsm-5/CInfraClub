@@ -24,6 +24,7 @@ const Cifra = () => {
   const maxLength = useRef(0);
   const minLength = useRef(0);
   const stepSize = useRef(0);
+  const currentEl = useRef(null);
 
   useEffect(() => {
     if(chordSelected !== null){
@@ -62,7 +63,6 @@ const Cifra = () => {
    const refContainer = useRef(null);
    const refLyricObj = useRef([]);
    const regex = /id=\"([\s\S]*?)\">/g;
-
    useEffect(() => {
     if (refContainer.current !== null) {
       print();
@@ -173,58 +173,77 @@ const Cifra = () => {
   }
 
   function bindClick(i, el) {
-    return function() {
+    return function () {
       //console.log(el);
-      if(!movedCypher.current.has(i)){
-        movedCypher.current.set(i,true)
-        let dim;
-        let dimEl;
-        let obj;
-        if(refLyricObj.current){
-          obj = refLyricObj.current.find(item => item.id === `${i}`);          
-          if(obj){
-            let temp = document.createElement('div');
-            temp.textContent = obj.palavra;
-            setChordSelected(obj);
-            temp.style.display ='initial';
-            $(el).append(temp)
-            dim = temp.getBoundingClientRect();
-            temp.remove();
-          }        
-          
+      // el.style.zIndex="-1";
+      // el.style.position = "absolute";
+      let dim;
+      let dimEl;
+      let obj;
+      let temp;
+      if (refLyricObj.current) {
+        obj = refLyricObj.current.find(item => item.id === `${i}`);
+        if (obj) {
+          temp = document.createElement('div');
+          temp.textContent = obj.palavra;
+          setChordSelected(obj);
+          temp.style.display = 'initial';
+          $('el').append(temp)
+          dim = temp.getBoundingClientRect();
+          //temp.remove();
         }
-        dimEl = el.getBoundingClientRect();
 
-        let letterW = getTextWidth('a', el)*2;
+      }
+      dimEl = el.getBoundingClientRect();
+
+      currentEl.current = el;
+      let letterW = 8.7;
+      if (!movedCypher.current.has(i)) {
         let widR = obj.palavra.length - (obj.pos + 1);
         let widL = obj.pos;
         let offsetR = widR * letterW;
         let offsetL = widL * letterW;
-
+        
         maxLength.current = dimEl.x + offsetR;
         minLength.current = dimEl.x - offsetL;
         stepSize.current = letterW;
         console.log(maxLength.current);
         console.log(minLength.current);
-        setSliderValue(dimEl.x);
+        movedCypher.current.set(i, {maxLength: maxLength.current, minLength: minLength.current, stepSize: stepSize.current});
+      }else{
+        let aux = movedCypher.current.get(i);
+        maxLength.current = aux.maxLength;
+        minLength.current = aux.minLength;
+        stepSize.current = aux.stepSize;
 
-        // $(el).draggable({
-        //   axis: "x",
-        //   grid: [letterW,0],
-        //   containment: [dimEl.x - offsetL, dimEl.y, dimEl.x + offsetR, dimEl.y + dim.height]
-        // });
       }
+      setSliderValue(dimEl.x);
+
+      // $(el).draggable({
+      //   axis: "x",
+      //   grid: [letterW,0],
+      //   containment: [dimEl.x - offsetL, dimEl.y, dimEl.x + offsetR, dimEl.y + dim.height]
+      // });
     };
- }
+  }
 
  function print() {
+  //refContainer.current.getElementsByTagName('pre')[0].style.position ='absolute';
   let bArr = refContainer.current.getElementsByTagName('b');
   let counter = 0;
   for (let i = 0; i < bArr.length; i++) {
-    bArr[i].setAttribute('id', counter)
+    bArr[i].setAttribute('id', counter);
     bArr[i].addEventListener("click", bindClick(i, bArr[i]));
     counter++; 
   }
+}
+
+function changeElPos(el) {
+  //el.setAttribute('z-index', -1);
+  el.setAttribute('style', `position: absolute; left: ${sliderValue}px;`)
+  //el.setAttribute('style', `transform: translate(${sliderValue}px);`)
+  // el.style.removeProperty("z-index");
+  //el.style.removeProperty("position");
 }
 
 
@@ -305,7 +324,7 @@ const Cifra = () => {
           <ModalBody p="8" minH="500px" display={"flex"} flexDirection={'column'} alignItems={"center"} justifyContent={"start"}>
             <Stack align={"center"} justify={"start"}>
               <Box w="200px" position={"relative"}>               
-                <Slider aria-label='slider-ex-4' min={minLength.current} max={maxLength.current} step={stepSize.current} mt="20px" defaultValue={sliderValue} onChange={(val) => setSliderValue(val)}>
+                <Slider aria-label='slider-ex-4' min={minLength.current} max={maxLength.current} step={stepSize.current} mt="20px" defaultValue={sliderValue} onChange={(val) => {setSliderValue(val); console.log(val);}}>
                   <SliderMark
                     value={sliderValue}
                     textAlign='center'
@@ -350,7 +369,7 @@ const Cifra = () => {
                 )}
               </Menu>
 
-              <Button onClick={() => {}} colorScheme='teal' size='md'>
+              <Button onClick={() => changeElPos(currentEl.current)} colorScheme='teal' size='md'>
                 Salvar
               </Button>  
             </Stack>
