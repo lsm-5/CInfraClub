@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react'
+//All libraries
+import React, { useState, useEffect, useRef } from 'react'
+import ReactDOM from 'react-dom';
 import io from "socket.io-client"
 import './styles.css';
 import { api, scrapCifra } from '../../services/api'
@@ -12,11 +14,43 @@ import Reorder, {
 } from 'react-reorder';
 import move from "lodash-move";
 import {MdOutlineClose} from 'react-icons/md'
+import $ from 'jquery';
+import 'jquery-ui-bundle';
+import 'jquery-ui-bundle/jquery-ui.css';
+
+//Code start
 
 let socket;
 const CONNECTION_PORT = "localhost:4000";
 
 function Room() {
+  //auxiliar functions
+
+  function getTextWidth(text, font) {
+    // re-use canvas object for better performance
+    const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+    const context = canvas.getContext("2d");
+    context.font = font;
+    const metrics = context.measureText(text);
+    return metrics.width;
+  }
+  
+  function getCssStyle(element, prop) {
+      return window.getComputedStyle(element, null).getPropertyValue(prop);
+  }
+  
+  function getCanvasFont(el = document.body) {
+    const fontWeight = getCssStyle(el, 'font-weight') || 'normal';
+    const fontSize = getCssStyle(el, 'font-size') || '16px';
+    const fontFamily = getCssStyle(el, 'font-family') || 'Times New Roman';
+    
+    return `${fontWeight} ${fontSize} ${fontFamily}`;
+  }
+
+
+
+
+
 
   const [nome, setNome] = useState('');
   const [sala, setSala] = useState('');
@@ -40,6 +74,11 @@ function Room() {
   const [display, setDisplay] = useState('');
   const [members, setMembers] = useState([]);
   const [musicaList, setMusicaList] = useState([]);
+  const movedCypher = useRef(new Map());
+  const refContainer = useRef(null);
+  const refLyricObj = useRef([]);
+  const regex = /id=\"([\s\S]*?)\">/g;
+
 
   useEffect(() => {
     socket.on('update-page', (data) => {
@@ -59,6 +98,111 @@ function Room() {
     }
   }, [])
 
+  useEffect(() => {
+    if (refContainer.current !== null) {
+      print();
+      //Parsing
+      let yo = (refContainer.current.getElementsByTagName('pre')[0].innerHTML)
+      //console.log(yo)
+      yo = yo.replaceAll('<b ', '').replaceAll('</b>', '').replaceAll('<pre>', '').replaceAll('</pre>', '');
+      let arrayLines = yo.split('\n');
+      //console.log(arrayLines)
+      let idCyphers = [];
+      for (let a = 0; a < arrayLines.length; a++) {
+        idCyphers.push([...arrayLines[a].matchAll(regex)]);
+        arrayLines[a] = arrayLines[a].replaceAll(regex, '');
+        
+      }
+      // yo = yo.replaceAll(regex,'');
+
+      // let s = JSON.stringify(yo);
+      // s = s.replaceAll('<b>', '').replaceAll('</b>', '').replaceAll('<pre>', '').replaceAll('</pre>', '');
+      // let arrayLines = s.split('\\n');
+
+      let mapLetra = []
+
+      for (let i = 0; i < arrayLines.length; i++) {
+        if (!arrayLines[i].includes('[Intro]') && arrayLines[i].trim() !== '' && arrayLines[i + 1]) {
+          //console.log(arrayLines[i].split(/(\s+)/).filter(element => element));
+          let cifras = arrayLines[i].split('');
+          //console.log(arrayLines[i].split(''))
+          let counter = 0;
+          let cifrasLength = 0;
+          let wordI = false;
+          for (let x = 0; x < cifras.length; x++) {
+            if (cifras[x] !== ' ') {
+              wordI = true;
+              if (x + 1 >= cifras.length) {
+                cifrasLength++;
+              }
+            } else {
+              if (wordI) {
+                cifrasLength++;
+              }
+              wordI = false
+            }
+
+          }
+          // console.log(cifrasLength)
+          let passI = false;
+          for (let y = 0; y < cifras.length; y++) {
+
+            //const firstCharIndex = arrayLines[i].match('[a-zA-Z]').index;
+            if (cifras[y] !== ' ') {
+              if (!passI) {
+
+                passI = true;
+                //let firstCharIndex = cifras[y].match('[a-zA-Z]').index;
+                counter++;
+                // console.log(counter)         
+                let words = arrayLines[i + 1].split(' ');
+                //console.log(words)
+                let totalLength = 0;
+                let pastWordLength = 0;
+                let skip = false;
+                for (let j = 0; j < words.length && !skip; j++) {
+                  if (words.length > 1 && (j + 1 < words.length)) {
+                    pastWordLength = totalLength;
+                    totalLength += words[j].length + 1;
+                  } else {
+                    pastWordLength = totalLength;
+                    totalLength += words[j].length
+                  }
+
+                  if (/*firstCharIndex*/y <= totalLength || j + 1 === words.length) {
+                    let obj = {
+                      palavra: words[j],
+                      cifra: getCypher(cifras, y),
+                      y: y,
+                      pastWordLength: pastWordLength,
+                      pos: y - pastWordLength,
+                      id: idCyphers[i][counter-1][1]
+                    }
+                    mapLetra.push(obj);
+                    skip = true;
+                    if (counter >= cifrasLength) {
+                      i++;
+                    }
+                  }
+                }
+
+              }
+
+            } else {
+              passI = false;
+            }
+
+          }
+        }
+      }
+      refLyricObj.current = mapLetra;
+      // console.log(refLyricObj.current)
+      // //console.log(mapLetra)
+      // setLyricObj(mapLetra);
+    }
+  }, [display])
+  
+
   function getCypher(array, pos){
     let cypher = '';
     let found = false;
@@ -73,116 +217,45 @@ function Room() {
   }
 
   async function getMusicInfo(e) {
-    console.log(e)
+    //console.log(e)
     setInput('');
     setMusica([]);
     const response = await scrapCifra.get(`/${e.music.autorB}/${e.music.nomeB}`);
-
-
-    //Parsing
-    let s = JSON.stringify(response.data);
-    s = s.replaceAll('<b>','').replaceAll('</b>','').replaceAll('<pre>','').replaceAll('</pre>','');
-    let arrayLines = s.split('\\n');
-    let mapLetra = []
-    console.log(arrayLines);
-    console.log(arrayLines[2].length);
-    console.log(arrayLines[3].length)
-    for (let i = 0; i < arrayLines.length; i++) {
-      if (!arrayLines[i].includes('[Intro]') && arrayLines[i].trim() !== '' && arrayLines[i+1]) {
-        //console.log(arrayLines[i].split(/(\s+)/).filter(element => element));
-        let cifras = arrayLines[i].split('');
-        console.log(arrayLines[i].split(''))
-        //let cifrasLength = cifras.filter(element => element).length;
-        //console.log(cifrasLength);
-        let counter = 0;
-
-        //let arrAux = [];
-
-        // for (let i = 0; i < cifras.length; i++) {
-        //   if (cifras[i][0] === " ") {
-        //     let tam = cifras[i].length;
-
-        //     for (let j = 0; j < tam; j++) {
-        //       arrAux.push("");
-        //     }
-        //   } else {
-        //     arrAux.push(cifras[i]);
-        //   }
-        // }
-        let cifrasLength = 0;
-        let wordI = false;
-        for (let x = 0; x < cifras.length; x++) {
-          if(cifras[x] !== ' '){
-            wordI = true;
-            if(x+1 >= cifras.length){
-              cifrasLength++;
-            }            
-          }else{
-            if(wordI){
-              cifrasLength++;
-            }
-            wordI = false
-          }
-          
-        }
-        console.log(cifrasLength)
-        let passI = false;
-        for (let y = 0; y < cifras.length; y++) {
-          
-          //const firstCharIndex = arrayLines[i].match('[a-zA-Z]').index;
-          if(cifras[y] !== ' '){
-            if(!passI){
-
-              passI = true;
-              //let firstCharIndex = cifras[y].match('[a-zA-Z]').index;
-              counter++; 
-              console.log(counter)         
-              let words = arrayLines[i+1].split(' ');
-              console.log(words)
-              let totalLength = 0;
-              let pastWordLength = 0;
-              let skip = false;
-              for (let j = 0; j < words.length && !skip; j++) {    
-                if(words.length > 1 && (j + 1 < words.length) ){
-                  pastWordLength = totalLength;
-                  totalLength += words[j].length +1;
-                }else{
-                  pastWordLength = totalLength;
-                  totalLength += words[j].length
-                }
-                if(counter === 3){
-                  console.log(y);
-                  console.log(totalLength);
-                }
-  
-                if(/*firstCharIndex*/y <= totalLength || j + 1 == words.length){
-                  let obj = {
-                    palavra: words[j],
-                    cifra: getCypher(cifras,y),
-                    y: y,
-                    pastWordLength: pastWordLength,
-                    pos: y - pastWordLength
-                  }
-                  mapLetra.push(obj);
-                  skip = true;
-                  if(counter >= cifrasLength){
-                    i++;
-                    console.log('first')
-                  }
-                }
-            }
-              
-            }        
-
-          }else{
-            passI = false;
-          }
-          
-        }
-      }      
-    }
-    console.log(mapLetra)
     setDisplay(response.data);//na resposta do servidor
+    //print()
+    //console.log(parse(response.data).props.children)
+    // console.log(JSON.stringify(response.data))
+    // console.log(parse(response.data))
+    
+    
+    
+    //let processed = parse(response.data).props.children
+    //console.log(processed);
+    // let counter = 0;
+    // let parada = false;
+    // for (let k = 0; k < processed.length && !parada; k++) {
+    //   if(processed[k].type !== 'b'){
+    //     let clean = processed[k].trim();
+    //     if((clean !== '\n') && (clean !== '') && !(clean.includes('Primeira Parte')) && !(clean.includes('Intro'))){
+    //       counter = k;
+    //       parada = true;
+    //     }
+    //   }
+    // }
+    // let rows = 0;
+    // for (let z = 0; z < counter + 1; z++) {
+    //   if(processed[z].type !== 'b'){    
+      //     let temp = (processed[z].match(new RegExp(/(\r\n|\r|\n)/g, "g")) || []).length
+      //     //console.log(JSON.stringify(processed[z]))
+      //     rows += temp;
+      //   }
+      // }
+      // console.log(rows)
+      // console.log(counter)      
+      
+     
+    //console.log(mapLetra)
+    //console.log(parse(display))
     //socket.emit('changing-music', { roomID: sala, music: response.data });
     //console.log(response);
   }
@@ -193,7 +266,7 @@ function Room() {
 
   function removeMusic(music, event){
     event.stopPropagation();
-    console.log('first')
+    //console.log('first')
     socket.emit('remove-music', {roomID: sala, music: music})
   }
 
@@ -237,7 +310,7 @@ function Room() {
 
   function resetDisplay(){
     setDisplay('');
-    console.log(display)
+    //console.log(display)
   }
 
   const styles = {
@@ -252,8 +325,81 @@ function Room() {
     setMusicaList(reorder(musicaList, previousIndex, nextIndex));
   }
 
+  function bindClick(i, el) {
+    return function() {
+        //console.log("you clicked region number " + i);
+        //console.log(ReactDOM.findDOMNode($(`#${i}`)))
+        //console.log(refLyricObj.current)
+      if(!movedCypher.current.has(i)){
+        movedCypher.current.set(i,true)
+        let dim;
+        let dimEl;
+        let obj;
+        if(refLyricObj.current){
+          obj = refLyricObj.current.find(item => item.id === `${i}`);          
+          if(obj){
+            let temp = document.createElement('div');
+            temp.textContent = obj.palavra;
+            console.log(obj.palavra)
+            console.log(obj)
+            temp.style.display ='initial';
+            $(el).append(temp)
+            dim = temp.getBoundingClientRect();
+            temp.remove();
+            //temp.style.display = 'none';
+          }        
+          
+        }
+        dimEl = el.getBoundingClientRect();
+        // let stringR = '';
+        // for (let j = obj.pos; j < obj.palavra.length; j++) {
+        //   stringR += obj.palavra.charAt(j);
+        // }
+        // let stringL = '';
+        // for (let u = 0; u <= obj.pos; u++) {
+        //   console.log(u)
+        //   console.log(obj.palavra.charAt(u))
+        //   stringL += obj.palavra.charAt(u);
+        // }
+        // console.log(stringL)
+        // let textWR = getTextWidth(stringR,el);
+        // let textWL = getTextWidth(stringL,el);
+        // let offsetR = textWR
+        // let offsetL = textWL;
+
+        let letterW = getTextWidth('a', el)*2;
+        let widR = obj.palavra.length - (obj.pos + 1);
+        let widL = obj.pos;
+        let offsetR = widR * letterW;
+        let offsetL = widL * letterW;
+
+
+        // if(obj.pos > 0){
+        //   offsetL += getTextWidth('a',el);
+        // }
+        $(el).draggable({
+          axis: "x",
+          grid: [letterW,0],
+          containment: [dimEl.x - offsetL, dimEl.y, dimEl.x + offsetR, dimEl.y + dim.height]
+        });
+      }
+        //console.log($(`#${i}`))
+        // $(`#${i}`).draggable({
+        //   axis: "x"
+        // });
+    };
+ }
+
   function print() {
-    console.log(musicaList);
+    //console.log('print')
+    let bArr = refContainer.current.getElementsByTagName('b');
+    let counter = 0;
+    for (let i = 0; i < bArr.length; i++) {
+      //console.log(bArr[i]);     
+      bArr[i].setAttribute('id', counter)
+      bArr[i].addEventListener("click", bindClick(i, bArr[i]));
+      counter++; 
+    }
   }
 
   return (
@@ -320,7 +466,7 @@ function Room() {
           </Popup>
 
           {Object.keys(display).length > 0 && (
-            <span className='musicInfo'>
+            <span ref={refContainer} className='musicInfo'>
               {parse(display)}
             </span>
           )}

@@ -72,7 +72,7 @@
 }
 
 .musicInfo pre{
-    font-family: 'Fuzzy Bubbles', cursive;
+    /*font-family: 'Fuzzy Bubbles', cursive;*/
     font-size: clamp(10px, 3vw, 20px);
 }
 
