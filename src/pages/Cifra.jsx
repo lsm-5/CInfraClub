@@ -1,18 +1,44 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Heading, Stack, Box, Input,VStack, HStack, Image, Button, Text,
-Menu, MenuButton, MenuList, MenuItem, useDisclosure, Modal, ModalOverlay,
-ModalContent, ModalCloseButton, ModalBody, Slider, SliderTrack, SliderFilledTrack,
-SliderThumb, SliderMark } from '@chakra-ui/react';
+import {
+  Heading, Stack, Box, Input, VStack, HStack, Image, Button, Text,
+  Menu, MenuButton, MenuList, MenuItem, useDisclosure, Modal, ModalOverlay,
+  ModalContent, ModalCloseButton, ModalBody, Slider, SliderTrack, SliderFilledTrack,
+  SliderThumb, SliderMark
+} from '@chakra-ui/react';
 import { ArrowBackIcon, EditIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import { useHistory } from 'react-router-dom';
-import {useInfo} from '../hooks/info';
+import { useInfo } from '../hooks/info';
 import { FiLogOut, FiPlay } from 'react-icons/fi';
 import { MdGraphicEq } from 'react-icons/md';
 import $ from 'jquery';
 import 'jquery-ui-bundle';
 import 'jquery-ui-bundle/jquery-ui.css';
-import {MdOutlineClose} from 'react-icons/md'
+import { MdOutlineClose } from 'react-icons/md'
 import parse from 'html-react-parser';
+import A from '../assets/acordes/Amaior.jpg';
+import B from '../assets/acordes/Bmaior.jpg';
+import C from '../assets/acordes/Cmaior.jpg';
+import D from '../assets/acordes/Dmaior.jpg';
+import E from '../assets/acordes/Emaior.jpg';
+import F from '../assets/acordes/Fmaior.jpg';
+import G from '../assets/acordes/Gmaior.jpg';
+import Am from '../assets/acordes/Amenor.jpg';
+import Bm from '../assets/acordes/Bmenor.jpg';
+import Cm from '../assets/acordes/Cmenor.jpg';
+import Dm from '../assets/acordes/Dmenor.jpg';
+import Em from '../assets/acordes/Emenor.jpg';
+import Fm from '../assets/acordes/Fmenor.jpg';
+import Gm from '../assets/acordes/Gmenor.jpg';
+import As_Bb from '../assets/acordes/As_Bb.jpg';
+import Asm_Bbm from '../assets/acordes/Asm_Bbm.jpg';
+import Cs_Db from '../assets/acordes/Cs_Db.jpg';
+import Csm_Dbm from '../assets/acordes/Csm_Dbm.jpg';
+import Ds_Eb from '../assets/acordes/Ds_Eb.jpg';
+import Dsm_Ebm from '../assets/acordes/Dsm_Ebm.jpg';
+import Fs_Gb from '../assets/acordes/Fs_Gb.jpg';
+import Fsm_Gbm from '../assets/acordes/Fsm_Gbm.jpg';
+import Gs_Ab from '../assets/acordes/Gs_Ab.jpg';
+import Gsm_Abm from '../assets/acordes/Gsm_Abm.jpg';
 
 const Cifra = () => {
   const history = useHistory();
@@ -21,18 +47,20 @@ const Cifra = () => {
   const [sliderValue, setSliderValue] = useState(50)
   const [urlAudio, setUrlAudio] = useState('');
   const [chordSelected, setChordSelected] = useState(null);
+  const [acordeAtual, setAcordeAtual] = useState(null);
 
   useEffect(() => {
-    if(chordSelected !== null){
+    if (chordSelected !== null) {
+      getAcorde(chordSelected.cifra)
       ModalDisclosure.onOpen();
     }
   }, [chordSelected])
 
   useEffect(() => {
     console.log('sliderValue', sliderValue)
-  },[sliderValue])
+  }, [sliderValue])
 
-  
+
   function getTextWidth(text, font) {
     // re-use canvas object for better performance
     const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
@@ -41,26 +69,78 @@ const Cifra = () => {
     const metrics = context.measureText(text);
     return metrics.width;
   }
-  
-  function getCssStyle(element, prop) {
-      return window.getComputedStyle(element, null).getPropertyValue(prop);
+
+  function getAcorde(acorde) {
+    if (acorde.includes("A#m") || acorde.includes("Bbm")) {
+      setAcordeAtual(Asm_Bbm);
+    } else if (acorde.includes("C#m") || acorde.includes("Dbm")) {
+      setAcordeAtual(Csm_Dbm);
+    } else if (acorde.includes("D#m") || acorde.includes("Ebm")) {
+      setAcordeAtual(Dsm_Ebm);
+    } else if (acorde.includes("F#m") || acorde.includes("Gbm")) {
+      setAcordeAtual(Fsm_Gbm);
+    } else if (acorde.includes("G#m") || acorde.includes("Abm")) {
+      setAcordeAtual(Gsm_Abm);
+    } else if (acorde.includes("A#") || acorde.includes("Bb")) {
+      setAcordeAtual(As_Bb);
+    } else if (acorde.includes("C#") || acorde.includes("Db")) {
+      setAcordeAtual(Cs_Db);
+    } else if (acorde.includes("D#") || acorde.includes("Eb")) {
+      setAcordeAtual(Ds_Eb);
+    } else if (acorde.includes("F#") || acorde.includes("Gb")) {
+      setAcordeAtual(Fs_Gb);
+    } else if (acorde.includes("G#") || acorde.includes("Ab")) {
+      setAcordeAtual(Gs_Ab);
+    } else if (acorde.includes("Am")) {
+      setAcordeAtual(Am);
+    } else if (acorde.includes("Bm")) {
+      setAcordeAtual(Bm);
+    } else if (acorde.includes("Cm")) {
+      setAcordeAtual(Cm);
+    } else if (acorde.includes("Dm")) {
+      setAcordeAtual(Dm);
+    } else if (acorde.includes("Em")) {
+      setAcordeAtual(Em);
+    } else if (acorde.includes("Fm")) {
+      setAcordeAtual(Fm);
+    } else if (acorde.includes("Gm")) {
+      setAcordeAtual(Gm);
+    } else if (acorde.includes("A")) {
+      setAcordeAtual(A);
+    } else if (acorde.includes("B")) {
+      setAcordeAtual(B);
+    } else if (acorde.includes("C")) {
+      setAcordeAtual(C);
+    } else if (acorde.includes("D")) {
+      setAcordeAtual(D);
+    } else if (acorde.includes("E")) {
+      setAcordeAtual(E);
+    } else if (acorde.includes("F")) {
+      setAcordeAtual(F);
+    } else if (acorde.includes("G")) {
+      setAcordeAtual(G);
+    }
   }
-  
+
+  function getCssStyle(element, prop) {
+    return window.getComputedStyle(element, null).getPropertyValue(prop);
+  }
+
   function getCanvasFont(el = document.body) {
     const fontWeight = getCssStyle(el, 'font-weight') || 'normal';
     const fontSize = getCssStyle(el, 'font-size') || '16px';
     const fontFamily = getCssStyle(el, 'font-family') || 'Times New Roman';
-    
+
     return `${fontWeight} ${fontSize} ${fontFamily}`;
   }
 
-   
-   const movedCypher = useRef(new Map());
-   const refContainer = useRef(null);
-   const refLyricObj = useRef([]);
-   const regex = /id=\"([\s\S]*?)\">/g;
 
-   useEffect(() => {
+  const movedCypher = useRef(new Map());
+  const refContainer = useRef(null);
+  const refLyricObj = useRef([]);
+  const regex = /id=\"([\s\S]*?)\">/g;
+
+  useEffect(() => {
     if (refContainer.current !== null) {
       print();
       //Parsing
@@ -73,7 +153,7 @@ const Cifra = () => {
       for (let a = 0; a < arrayLines.length; a++) {
         idCyphers.push([...arrayLines[a].matchAll(regex)]);
         arrayLines[a] = arrayLines[a].replaceAll(regex, '');
-        
+
       }
 
       let mapLetra = []
@@ -133,7 +213,7 @@ const Cifra = () => {
                       y: y,
                       pastWordLength: pastWordLength,
                       pos: y - pastWordLength,
-                      id: idCyphers[i][counter-1][1]
+                      id: idCyphers[i][counter - 1][1]
                     }
                     mapLetra.push(obj);
                     skip = true;
@@ -156,13 +236,13 @@ const Cifra = () => {
     }
   }, [musicSelected?.cifra])
 
-  function getCypher(array, pos){
+  function getCypher(array, pos) {
     let cypher = '';
     let found = false;
     for (let i = pos; i < array.length && !found; i++) {
-      if(array[i] !== ' '){
+      if (array[i] !== ' ') {
         cypher += array[i]
-      }else{
+      } else {
         found = true;
       }
     }
@@ -170,28 +250,29 @@ const Cifra = () => {
   }
 
   function bindClick(i, el) {
-    return function() {
-      if(!movedCypher.current.has(i)){
-        movedCypher.current.set(i,true)
+
+    return function () {
+      if (!movedCypher.current.has(i)) {
+        movedCypher.current.set(i, true)
         let dim;
         let dimEl;
         let obj;
-        if(refLyricObj.current){
-          obj = refLyricObj.current.find(item => item.id === `${i}`);          
-          if(obj){
+        if (refLyricObj.current) {
+          obj = refLyricObj.current.find(item => item.id === `${i}`);
+          if (obj) {
             let temp = document.createElement('div');
             temp.textContent = obj.palavra;
             setChordSelected(obj);
-            temp.style.display ='initial';
+            temp.style.display = 'initial';
             $(el).append(temp)
             dim = temp.getBoundingClientRect();
             temp.remove();
-          }        
-          
+          }
+
         }
         dimEl = el.getBoundingClientRect();
 
-        let letterW = getTextWidth('a', el)*2;
+        let letterW = getTextWidth('a', el) * 2;
         let widR = obj.palavra.length - (obj.pos + 1);
         let widL = obj.pos;
         let offsetR = widR * letterW;
@@ -199,22 +280,22 @@ const Cifra = () => {
 
         $(el).draggable({
           axis: "x",
-          grid: [letterW,0],
+          grid: [letterW, 0],
           containment: [dimEl.x - offsetL, dimEl.y, dimEl.x + offsetR, dimEl.y + dim.height]
         });
       }
     };
- }
-
- function print() {
-  let bArr = refContainer.current.getElementsByTagName('b');
-  let counter = 0;
-  for (let i = 0; i < bArr.length; i++) {
-    bArr[i].setAttribute('id', counter)
-    bArr[i].addEventListener("click", bindClick(i, bArr[i]));
-    counter++; 
   }
-}
+
+  function print() {
+    let bArr = refContainer.current.getElementsByTagName('b');
+    let counter = 0;
+    for (let i = 0; i < bArr.length; i++) {
+      bArr[i].setAttribute('id', counter)
+      bArr[i].addEventListener("click", bindClick(i, bArr[i]));
+      counter++;
+    }
+  }
 
 
   return (
@@ -222,24 +303,24 @@ const Cifra = () => {
       <Box position="absolute" top={10} right={100}>
         <HStack>
           <EditIcon cursor={"pointer"} w={5} h={5} color="red.500" onClick={() => history.push('/editar_sala')} />
-          <Heading  as='h3' size='sm'>{`Sala ${room?.senha}`}</Heading>
+          <Heading as='h3' size='sm'>{`Sala ${room?.senha}`}</Heading>
         </HStack>
       </Box>
 
-      <Box position="absolute" top={8} right={260} onClick={() => {history.push('/sala'); setMusicSelected(null)}}>
+      <Box position="absolute" top={8} right={260} onClick={() => { history.push('/sala'); setMusicSelected(null) }}>
         <HStack cursor={"pointer"}>
-        <ArrowBackIcon cursor={"pointer"} w={5} h={5} color="purple.500"  />          
-        <Heading  as='h3' size='sm'>Voltar</Heading>
+          <ArrowBackIcon cursor={"pointer"} w={5} h={5} color="purple.500" />
+          <Heading as='h3' size='sm'>Voltar</Heading>
         </HStack>
       </Box>
 
       <Box position="absolute" top={6} left={100} borderWidth={2} borderColor="purple.500" p="2">
         <HStack cursor={"pointer"} onClick={() => logOut()}>
-          <FiLogOut style={{width: 20, height: 20}} color="#805AD5" />
-          <Heading  as='h3' size='sm'>Sair</Heading>
+          <FiLogOut style={{ width: 20, height: 20 }} color="#805AD5" />
+          <Heading as='h3' size='sm'>Sair</Heading>
         </HStack>
       </Box>
-      
+
       <HStack>
         <Heading as='h1' size='xl'>{musicSelected?.name}</Heading>
         <Text>-</Text>
@@ -253,11 +334,11 @@ const Cifra = () => {
 
             <HStack>
               <Text fontWeight={"bold"}>Tom</Text>
-              <Input defaultValue={"B"} w="60px"/>
+              <Input defaultValue={"B"} w="60px" />
             </HStack>
           </Stack>
           <Stack w="33%" justify={"start"} align={"start"} flex="1" minH={"100%"}>
-            <Text  fontWeight={"bold"}>Repertório</Text>
+            <Text fontWeight={"bold"}>Repertório</Text>
             <Menu>
               {({ isOpen }) => (
                 <>
@@ -293,7 +374,7 @@ const Cifra = () => {
           <ModalCloseButton />
           <ModalBody p="8" minH="500px" display={"flex"} flexDirection={'column'} alignItems={"center"} justifyContent={"start"}>
             <Stack align={"center"} justify={"start"}>
-              <Box w="200px" position={"relative"}>                
+              <Box w="200px" position={"relative"}>
                 <Slider aria-label='slider-ex-4' mt="20px" defaultValue={sliderValue} onChange={(val) => setSliderValue(val)}>
                   <SliderMark
                     value={sliderValue}
@@ -307,7 +388,7 @@ const Cifra = () => {
                     {chordSelected.cifra}
                   </SliderMark>
                   <SliderMark value={0} fontSize='sm' w="200px" mt="20px">
-                   <Heading as='h6' size='2xl' w="200px" bg="purple.100" textAlign={"center"}>{chordSelected.palavra}</Heading>
+                    <Heading as='h6' size='2xl' w="200px" bg="purple.100" textAlign={"center"}>{chordSelected.palavra}</Heading>
                   </SliderMark>
 
                   <SliderTrack bg='purple.100'>
@@ -321,7 +402,7 @@ const Cifra = () => {
             </Stack>
             <Stack mt="16">
               <Stack borderWidth={"2px"} borderColor="purple.100" w="150px" h="200px">
-                <Text>Lucas 2</Text>
+                <Image src={acordeAtual} />
               </Stack>
 
               <Menu>
@@ -339,16 +420,16 @@ const Cifra = () => {
                 )}
               </Menu>
 
-              <Button onClick={() => {}} colorScheme='teal' size='md'>
+              <Button onClick={() => { }} colorScheme='teal' size='md'>
                 Salvar
-              </Button>  
+              </Button>
             </Stack>
           </ModalBody>
         </ModalContent>
       </Modal>)}
-     
+
     </Stack>
- );
+  );
 }
 
 export default Cifra;
