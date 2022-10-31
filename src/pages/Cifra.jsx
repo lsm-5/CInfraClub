@@ -8,14 +8,14 @@ import { useHistory } from 'react-router-dom';
 import {useInfo} from '../hooks/info';
 import { FiLogOut, FiPlay } from 'react-icons/fi';
 import { MdGraphicEq } from 'react-icons/md';
-//import $ from 'jquery';
-//import 'jquery-ui-bundle';
-//import 'jquery-ui-bundle/jquery-ui.css';
-//import {MdOutlineClose} from 'react-icons/md'
+import $ from 'jquery';
+import 'jquery-ui-bundle';
+import 'jquery-ui-bundle/jquery-ui.css';
+import {MdOutlineClose} from 'react-icons/md'
 import parse from 'html-react-parser';
 
-const Cifra: React.FC = () => {
-  /*const history = useHistory();
+const Cifra = () => {
+  const history = useHistory();
   const { room, logOut, musicSelected, playlist, setMusicSelected } = useInfo();
   const ModalDisclosure = useDisclosure()
   const [sliderValue, setSliderValue] = useState(50)
@@ -47,12 +47,8 @@ const Cifra: React.FC = () => {
     return `${fontWeight} ${fontSize} ${fontFamily}`;
   }
 
-   //Logic for search part
-   const [input, setInput] = useState('');
-   const [musica, setMusica] = useState([]);
-   const [display, setDisplay] = useState('');
-   const [members, setMembers] = useState([]);
-   const [musicaList, setMusicaList] = useState([]);
+   
+   const [display, setDisplay] = useState(musicSelected.cifra);
    const movedCypher = useRef(new Map());
    const refContainer = useRef(null);
    const refLyricObj = useRef([]);
@@ -213,11 +209,10 @@ const Cifra: React.FC = () => {
     bArr[i].addEventListener("click", bindClick(i, bArr[i]));
     counter++; 
   }
-}*/
+}
 
 
   return (
-    {/*
     <Stack align="center" justify="start" flex={1} minH="100vh" p="5%" minW="90vw">
       <Box position="absolute" top={10} right={100}>
         <HStack>
@@ -246,49 +241,47 @@ const Cifra: React.FC = () => {
         <Heading as='h1' size='xl'>{musicSelected?.author}</Heading>
       </HStack>
 
-      <HStack w="100%">
-        <Stack w="33%">
-          <Text fontWeight={"bold"}>Cifra</Text>
+      <Stack w="100%">
+        <HStack>
+          <Stack w="66%">
+            <Text fontWeight={"bold"}>Cifra</Text>
 
-          <HStack>
-            <Text fontWeight={"bold"}>Tom</Text>
-            <Input defaultValue={"B"} w="60px"/>
-          </HStack>
+            <HStack>
+              <Text fontWeight={"bold"}>Tom</Text>
+              <Input defaultValue={"B"} w="60px"/>
+            </HStack>
+          </Stack>
+          <Stack w="33%" justify={"start"} align={"start"} flex="1" minH={"100%"}>
+            <Text  fontWeight={"bold"}>Repertório</Text>
+            <Menu>
+              {({ isOpen }) => (
+                <>
+                  <MenuButton isActive={isOpen} as={Button} rightIcon={<ChevronDownIcon />}>
+                    {musicSelected?.name}
+                  </MenuButton>
+                  <MenuList>
+                    {playlist.map(item => (
+                      <MenuItem onClick={() => setMusicSelected(item)}>{item.name}</MenuItem>
+                    ))}
+                  </MenuList>
+                </>
+              )}
+            </Menu>
+          </Stack>
+        </HStack>
 
-          <VStack onClick={ModalDisclosure.onOpen}>
+        <Stack w="100%" align={"start"} justify="start">
+          {/* ModalDisclosure.onOpen */}
+          <VStack onClick={() => {}}>
             {Object.keys(display).length > 0 && (
               <span ref={refContainer} className='musicInfo'>
                 {parse(display)}
               </span>
             )}
           </VStack>
-
-
         </Stack>
 
-        <Stack w="33%">
-          <Text fontWeight={"bold"}>Visualização de blocos</Text>
-
-        </Stack>
-
-        <Stack w="33%">
-          <Text  fontWeight={"bold"}>Repertório</Text>
-          <Menu>
-            {({ isOpen }) => (
-              <>
-                <MenuButton isActive={isOpen} as={Button} rightIcon={<ChevronDownIcon />}>
-                  {musicSelected?.name}
-                </MenuButton>
-                <MenuList>
-                  {playlist.map(item => (
-                    <MenuItem onClick={() => setMusicSelected(item)}>{item.name}</MenuItem>
-                  ))}
-                </MenuList>
-              </>
-            )}
-          </Menu>
-        </Stack>
-      </HStack>
+      </Stack>
 
       <Modal isOpen={ModalDisclosure.isOpen} onClose={ModalDisclosure.onClose}>
         <ModalOverlay />
@@ -357,7 +350,6 @@ const Cifra: React.FC = () => {
       </Modal>
      
     </Stack>
-  */}
  );
 }
 

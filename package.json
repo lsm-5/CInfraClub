@@ -16,16 +16,17 @@
     "axios": "^1.1.3",
     "firebase": "^9.13.0",
     "framer-motion": "^6",
+    "html-react-parser": "^3.0.4",
+    "jquery": "^3.6.1",
+    "jquery-ui-bundle": "^1.12.1-migrate",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.6.0",
     "react-router": "^5.2.0",
-    "react-router-dom": "^5.2.0",
-    "jquery": "^3.6.1",
-    "jquery-ui-bundle": "^1.12.1-migrate",
-    "html-react-parser": "^3.0.4"
+    "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.14",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@types/react-router-dom": "^5.3.3",
