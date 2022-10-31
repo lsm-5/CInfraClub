@@ -1,0 +1,5 @@
+Todos:
+    ✔ make so it shows the music lyrics and chords when you click on an option from the list, and when you click and hold, make it draggable @critical @done(22-10-20 18:06)
+    ✔ add remove music from list functionality with a button next to it's name @high @done(22-10-20 18:06)
+    ☐ align items correctly in the page through css @high
+    ☐ beautify it @low

@@ -18,9 +18,12 @@ const Cifra = () => {
   const history = useHistory();
   const { room, logOut, musicSelected, playlist, setMusicSelected } = useInfo();
   const ModalDisclosure = useDisclosure()
-  const [sliderValue, setSliderValue] = useState(50)
+  const [sliderValue, setSliderValue] = useState(0);
   const [urlAudio, setUrlAudio] = useState('');
   const [chordSelected, setChordSelected] = useState(null);
+  const maxLength = useRef(0);
+  const minLength = useRef(0);
+  const stepSize = useRef(0);
 
   useEffect(() => {
     if(chordSelected !== null){
@@ -171,6 +174,7 @@ const Cifra = () => {
 
   function bindClick(i, el) {
     return function() {
+      //console.log(el);
       if(!movedCypher.current.has(i)){
         movedCypher.current.set(i,true)
         let dim;
@@ -197,11 +201,18 @@ const Cifra = () => {
         let offsetR = widR * letterW;
         let offsetL = widL * letterW;
 
-        $(el).draggable({
-          axis: "x",
-          grid: [letterW,0],
-          containment: [dimEl.x - offsetL, dimEl.y, dimEl.x + offsetR, dimEl.y + dim.height]
-        });
+        maxLength.current = dimEl.x + offsetR;
+        minLength.current = dimEl.x - offsetL;
+        stepSize.current = letterW;
+        console.log(maxLength.current);
+        console.log(minLength.current);
+        setSliderValue(dimEl.x);
+
+        // $(el).draggable({
+        //   axis: "x",
+        //   grid: [letterW,0],
+        //   containment: [dimEl.x - offsetL, dimEl.y, dimEl.x + offsetR, dimEl.y + dim.height]
+        // });
       }
     };
  }
@@ -287,14 +298,14 @@ const Cifra = () => {
 
       </Stack>
 
-      {chordSelected !== null && (<Modal isOpen={ModalDisclosure.isOpen} onClose={ModalDisclosure.onClose}>
+      {chordSelected !== null && sliderValue > 0 && (<Modal isOpen={ModalDisclosure.isOpen} onClose={ModalDisclosure.onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
           <ModalBody p="8" minH="500px" display={"flex"} flexDirection={'column'} alignItems={"center"} justifyContent={"start"}>
             <Stack align={"center"} justify={"start"}>
-              <Box w="200px" position={"relative"}>                
-                <Slider aria-label='slider-ex-4' mt="20px" defaultValue={sliderValue} onChange={(val) => setSliderValue(val)}>
+              <Box w="200px" position={"relative"}>               
+                <Slider aria-label='slider-ex-4' min={minLength.current} max={maxLength.current} step={stepSize.current} mt="20px" defaultValue={sliderValue} onChange={(val) => setSliderValue(val)}>
                   <SliderMark
                     value={sliderValue}
                     textAlign='center'
@@ -307,7 +318,7 @@ const Cifra = () => {
                     {chordSelected.cifra}
                   </SliderMark>
                   <SliderMark value={0} fontSize='sm' w="200px" mt="20px">
-                   <Heading as='h6' size='2xl' w="200px" bg="purple.100" textAlign={"center"}>{chordSelected.palavra}</Heading>
+                  <Heading as='h6' size='2xl' w="200px" bg="purple.100" textAlign={"center"}>{chordSelected.palavra}</Heading>
                   </SliderMark>
 
                   <SliderTrack bg='purple.100'>
@@ -316,7 +327,7 @@ const Cifra = () => {
                   <SliderThumb boxSize={6}>
                     <Box color='purple' as={MdGraphicEq} />
                   </SliderThumb>
-                </Slider>
+                </Slider>       
               </Box>
             </Stack>
             <Stack mt="16">
