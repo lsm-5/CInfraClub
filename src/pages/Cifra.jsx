@@ -20,6 +20,13 @@ const Cifra = () => {
   const ModalDisclosure = useDisclosure()
   const [sliderValue, setSliderValue] = useState(50)
   const [urlAudio, setUrlAudio] = useState('');
+  const [chordSelected, setChordSelected] = useState(null);
+
+  useEffect(() => {
+    if(chordSelected !== null){
+      ModalDisclosure.onOpen();
+    }
+  }, [chordSelected])
 
   useEffect(() => {
     console.log('sliderValue', sliderValue)
@@ -48,7 +55,6 @@ const Cifra = () => {
   }
 
    
-   const [display, setDisplay] = useState(musicSelected.cifra);
    const movedCypher = useRef(new Map());
    const refContainer = useRef(null);
    const refLyricObj = useRef([]);
@@ -148,7 +154,7 @@ const Cifra = () => {
       }
       refLyricObj.current = mapLetra;
     }
-  }, [display])
+  }, [musicSelected?.cifra])
 
   function getCypher(array, pos){
     let cypher = '';
@@ -175,8 +181,7 @@ const Cifra = () => {
           if(obj){
             let temp = document.createElement('div');
             temp.textContent = obj.palavra;
-            console.log(obj.palavra)
-            console.log(obj)
+            setChordSelected(obj);
             temp.style.display ='initial';
             $(el).append(temp)
             dim = temp.getBoundingClientRect();
@@ -271,11 +276,10 @@ const Cifra = () => {
         </HStack>
 
         <Stack w="100%" align={"start"} justify="start">
-          {/* ModalDisclosure.onOpen */}
-          <VStack onClick={() => {}}>
-            {Object.keys(display).length > 0 && (
+          <VStack>
+            {Object.keys(musicSelected?.cifra).length > 0 && (
               <span ref={refContainer} className='musicInfo'>
-                {parse(display)}
+                {parse(musicSelected?.cifra)}
               </span>
             )}
           </VStack>
@@ -283,7 +287,7 @@ const Cifra = () => {
 
       </Stack>
 
-      <Modal isOpen={ModalDisclosure.isOpen} onClose={ModalDisclosure.onClose}>
+      {chordSelected !== null && (<Modal isOpen={ModalDisclosure.isOpen} onClose={ModalDisclosure.onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
@@ -300,10 +304,10 @@ const Cifra = () => {
                     ml='-6'
                     w='12'
                   >
-                    G
+                    {chordSelected.cifra}
                   </SliderMark>
                   <SliderMark value={0} fontSize='sm' w="200px" mt="20px">
-                   <Heading as='h6' size='2xl' w="200px" bg="purple.100" textAlign={"center"}>FUGIU</Heading>
+                   <Heading as='h6' size='2xl' w="200px" bg="purple.100" textAlign={"center"}>{chordSelected.palavra}</Heading>
                   </SliderMark>
 
                   <SliderTrack bg='purple.100'>
@@ -335,19 +339,13 @@ const Cifra = () => {
                 )}
               </Menu>
 
-              <HStack justify="space-between">
-                <Button onClick={() => {}} colorScheme='teal' size='md'>
-                  Salvar
-                </Button>
-
-                <Button leftIcon={<FiPlay />} onClick={() => new Audio(urlAudio).play()} colorScheme='teal' size='md'>
-                  Tocar
-                </Button> 
-              </HStack>
+              <Button onClick={() => {}} colorScheme='teal' size='md'>
+                Salvar
+              </Button>  
             </Stack>
           </ModalBody>
         </ModalContent>
-      </Modal>
+      </Modal>)}
      
     </Stack>
  );
