@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Heading, Stack, Box, SimpleGrid, Text, HStack, Modal,
   ModalOverlay, ModalContent, ModalBody, Button, Input,
   ModalCloseButton, useDisclosure, VStack, 
@@ -10,36 +10,25 @@ import { FiLogOut } from 'react-icons/fi';
 
 const Playlist: React.FC = () => {
   const history = useHistory();
-  const { room, logOut, playlist, removeMusic, addMusic } = useInfo();
-
-  const [searchMusic, setSearchMusic] = useState([
-    {
-      name: "musica sugestão 1",
-      author: "Autor 1",
-      tom: "",
-      cifra: "",
-    },
-    {
-      name: "musica sugestão 2",
-      author: "Autor 2",
-      tom: "",
-      cifra: "",
-    },
-    {
-      name: "musica sugestão 3",
-      author: "Autor 3",
-      tom: "",
-      cifra: "",
-    },
-    {
-      name: "musica sugestão 4",
-      author: "Autor 4",
-      tom: "",
-      cifra: "",
-    }
-  ])
+  const { 
+    room, 
+    logOut, 
+    playlist, 
+    removeMusic, 
+    addMusic, 
+    setMusicSelected, 
+    musicSelected,
+    searchMusic,
+    handleSearch,
+  } = useInfo();
 
   const { isOpen, onOpen, onClose } = useDisclosure()
+
+  useEffect(() => {
+    if(musicSelected !== null){
+      history.push('/cifra')
+    }
+  }, [musicSelected])
 
   return (
     <Stack align="center" justify="start" flex={1} minH="100vh" p="5%" minW="90vw">
@@ -63,7 +52,7 @@ const Playlist: React.FC = () => {
       <SimpleGrid columns={1} spacing={10}>
         {playlist.map(item => (
           <HStack>
-            <Stack onClick={() => {}} borderWidth={2} borderColor="#cecece" h={"80px"} minW={"100%"} p="2" align="center" justify="center" cursor="pointer">
+            <Stack onClick={() => setMusicSelected(item)} borderWidth={2} borderColor="#cecece" h={"80px"} minW={"100%"} p="2" align="center" justify="center" cursor="pointer">
               <HStack>
                 <Text>{item.author}</Text>
                 <Text>-</Text>
@@ -87,7 +76,7 @@ const Playlist: React.FC = () => {
           <ModalBody p="8">
               <Text>Digite o nome da música</Text>
               <HStack marginY={2}>
-                <Input placeholder='Digite a senha da sala' size="md" />
+                <Input placeholder='Digite a senha da sala' size="md" onChange={e => handleSearch(e.target.value)} />
                 <Button colorScheme='teal' size='md'>
                   Buscar
                 </Button>

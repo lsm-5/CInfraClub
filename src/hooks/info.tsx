@@ -9,6 +9,7 @@ import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, where, g
 const COLLECTION_SALAS = "Salas";
 import { useToast } from '@chakra-ui/react';
 import db from '../firebase-config';
+import {scrapCifra, api} from '../service/api';
 
 type Sala = {
   id?: string;
@@ -22,6 +23,8 @@ type Music = {
   author: string;
   cifra: string;
   tom: string;
+  searchAuthor: string;
+  searchName: string;
 }
 
 interface InfoContext {
@@ -34,7 +37,10 @@ interface InfoContext {
   playlist: Music[];
   addMusic: (music: Music) => Promise<void>;
   removeMusic: (id: string | undefined) => Promise<void>;
-  getPlaylist: (id: string | undefined) => Promise<void>;
+  setMusicSelected: (music: Music | null) => void;
+  musicSelected: Music | null;
+  handleSearch: (input: string) => void;
+  searchMusic: Music[];
 }
 
 const InfoContext = createContext<InfoContext | null>(null);
@@ -46,23 +52,24 @@ interface Props {
 const InfoProvider = ({ children }: Props) => {
   const [room, setRoom] = useState<Sala | null>(null);
   const [playlist, setPlaylist] = useState<Music[]>([])
+  const [musicSelected, setMusicSelected] = useState<Music | null>(null)
+  const [searchMusic, setSearchMusic] = useState<Music[]>([])
   const toast = useToast()
 
   useEffect(() => {
     if (room !== null) {
-      // todo: pegar playlist (a coleção toda) e armazenar na variável playlist
-      // felipe: não consegui usar função assíncrona aqui dentro
+      getPlaylist(room?.id);
     }
   }, [room])
 
   const addMusic = async (music: Music): Promise<void> => {
     // todo(done): vai pegar esse dados, criar um objeto e armazenar na coleção playlist dentro da sala como um documento novo
     // todo(done): vai atualizar a variavel playlist daqui
-    const playlistId = (await getDocs(
-      collection(db, COLLECTION_SALAS + "/" + room?.id + "/playlist")
-    )).docs[0].id
-    const musicasRef = collection(db, COLLECTION_SALAS + "/" + room?.id + "/playlist/" + playlistId + "/Musica");
-    await addDoc(musicasRef, music);
+    const musicWithCifra = {...music}
+    const cifra = await getMusicInfo(musicWithCifra.searchAuthor, musicWithCifra.searchName);
+    musicWithCifra.cifra = cifra;
+    const musicasRef = collection(db, COLLECTION_SALAS + "/" + room?.id + "/playlist/");
+    await addDoc(musicasRef, musicWithCifra);
     await getPlaylist(room?.id)
 
     GenerateToast("Sucesso", "A música foi adicionada", "success");
@@ -75,10 +82,7 @@ const InfoProvider = ({ children }: Props) => {
     }
     // todo(done): vai pegar o id recebido como parametro e o id da variavel room daqui e vai remover a musica da playlist
     // todo(done): vai atualizar a variavel playlist daqui
-    const playlistId = (await getDocs(
-      collection(db, COLLECTION_SALAS + "/" + room?.id + "/playlist")
-    )).docs[0].id
-    const musicRef = doc(collection(db, COLLECTION_SALAS + "/" + room?.id + "/playlist/" + playlistId + "/Musica"), id);
+    const musicRef = doc(collection(db, COLLECTION_SALAS + "/" + room?.id + "/playlist/"), id);
     await deleteDoc(musicRef);
     await getPlaylist(room?.id)
 
@@ -115,16 +119,15 @@ const InfoProvider = ({ children }: Props) => {
   }
 
   const getPlaylist = async (id: string | undefined): Promise<void> => {
-    if (getPlaylist === undefined) {
+    if (id === undefined) {
       GenerateToast("Erro", "Id da sala inválido", "error");
       return;
     }
-    const playlistId = (await getDocs(
-      collection(db, COLLECTION_SALAS + "/" + id + "/playlist")
-    )).docs[0].id
+    
     const playlistSnapshot = await getDocs(
-      collection(db, COLLECTION_SALAS + "/" + id + "/playlist/" + playlistId + "/Musica")
+      collection(db, COLLECTION_SALAS + "/" + id + "/playlist/")
     )
+
     const musicas: Array<Music> = [];
     playlistSnapshot.docs.map((_data) => {
       musicas.push({
@@ -132,6 +135,7 @@ const InfoProvider = ({ children }: Props) => {
         ..._data.data()
       } as Music);
     });
+
     setPlaylist(musicas)
   }
 
@@ -168,8 +172,8 @@ const InfoProvider = ({ children }: Props) => {
     const reference = collection(db, COLLECTION_SALAS);
     const sala = { name: name, senha: generatePassword() }
     const docRef = await addDoc(reference, sala);
-    const playlistRef = collection(db, COLLECTION_SALAS + "/" + docRef.id + "/" + "playlist");
-    await addDoc(playlistRef, {});
+    // const playlistRef = collection(db, COLLECTION_SALAS + "/" + docRef.id + "/" + "playlist");
+    // await addDoc(playlistRef, {});
     GenerateToast("Sucesso", "Sua sala foi criada", "success");
 
     console.log('senha', sala.senha)
@@ -197,6 +201,43 @@ const InfoProvider = ({ children }: Props) => {
     setRoom(null);
   }
 
+  async function getMusicInfo(author: string, music: string) {
+    const response = await scrapCifra.get(`/${author}/${music}`);
+    console.log('response', response.data);//na resposta do servidor
+    return response.data;
+  }
+
+  async function handleSearch(input: string) {
+    if (input === '') {
+      GenerateToast('Atenção', 'Digite algo antes de pesquisar', 'warning');
+      return;
+    }
+
+    try {
+      const response = await api.get('/', { params: { q: input } });
+      const processed = JSON.parse(response.data.slice(1).slice(0, response.data.length - 3))
+      if (processed && processed.response.docs.length > 0) {
+        let musicList: Music[] = []
+        for (let i = 0; i < processed.response.docs.length && i < 5; i++) {
+          if (processed.response.docs[i].d != null && processed.response.docs[i].u != null) {
+            let musica = {
+              author: processed.response.docs[i].a,
+              name: processed.response.docs[i].m,
+              searchAuthor: processed.response.docs[i].d,
+              searchName: processed.response.docs[i].u,
+              cifra: '',
+              tom: '',
+            }
+            musicList.push(musica);
+          }
+        }
+        setSearchMusic(musicList);
+      }
+    } catch (error) {
+      alert("erro ao buscar");
+    }
+  }
+
   const value = React.useMemo(
     () => ({
       room,
@@ -208,6 +249,10 @@ const InfoProvider = ({ children }: Props) => {
       playlist,
       removeMusic,
       addMusic,
+      musicSelected,
+      setMusicSelected,
+      handleSearch,
+      searchMusic,
     }),
     [
       room,
@@ -219,6 +264,10 @@ const InfoProvider = ({ children }: Props) => {
       playlist,
       removeMusic,
       addMusic,
+      musicSelected,
+      setMusicSelected,
+      handleSearch,
+      searchMusic,
     ],
   );
 
