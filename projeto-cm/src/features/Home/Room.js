@@ -370,6 +370,9 @@ function Room() {
 
         let letterW = getTextWidth('a', el)*2;
         let widR = obj.palavra.length - (obj.pos + 1);
+        if(widR < 0){
+          widR = 0;
+        }
         let widL = obj.pos;
         let offsetR = widR * letterW;
         let offsetL = widL * letterW;
