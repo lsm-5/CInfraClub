@@ -1,0 +1,318 @@
+.container{
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.title{
+    font-size: 20px;
+    color: black;
+}
+
+.containerInput{
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    margin-top: 34px;
+    display: flex;
+    border-radius: 8px;
+    box-shadow: 1px 3px 8px rgba(0, 0, 0, 0.2);
+    width: 90%;
+}
+
+.containerInput input{
+    background-color: transparent;
+    border: 0;
+    font-size: 20px;
+    margin-right: 8px;
+    outline: none;
+}
+
+.containerInput input::placeholder {
+    color: darkgray;
+}
+
+.dropdown{
+    background-color: rgba(150, 52, 52, 0.2);
+    padding: 15px;
+    display: flex;
+}
+.dropdown:hover{
+    background-color: rgba(61, 19, 19, 0.2);
+    cursor: pointer;
+}
+
+.buttonSearch{
+    background-color: transparent;
+    border: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.main h2{
+    margin: 16px 0;
+    font-size: 24px;
+}
+
+.musicInfo{    
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.musicInfo pre{
+    /*font-family: 'Fuzzy Bubbles', cursive;*/
+    font-size: clamp(10px, 3vw, 20px);
+}
+
+
+.musicInfo pre b{
+    --c: #805AD5; /* the color */
+  
+  color: #0000;
+  background: 
+    linear-gradient(90deg,#fff 50%,var(--c) 0) calc(100% - var(--_p,0%))/200%,
+    linear-gradient(var(--c) 0 0) 0% 100%/var(--_p,0%) no-repeat,
+    var(--_c,#0000);
+  -webkit-background-clip: text,padding-box,padding-box;
+          background-clip: text,padding-box,padding-box;
+  transition: 0s ,color .2s,background-color .2s;
+  border-radius: 3px;
+}
+
+.musicInfo pre b:hover{
+    cursor: pointer;
+    padding: 0 4px;
+    margin: 0 -4px;
+    color: #fff;
+    --_c: var(--c);
+    --_p: 100%;    
+    transition: 0.2s,background-color 0s .2s;
+}
+
+.divInputs{
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    margin-top: 34px;
+    display: flex;
+    border-radius: 8px;
+    box-shadow: 1px 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.divInputs input{
+    background-color: transparent;
+    border: 0;
+    font-size: 30px;
+    outline: none;
+    
+}
+
+
+@media only screen and (max-width: 675px) {
+    .divInputs{
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 15px;
+        margin-top: 34px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 8px;
+        box-shadow: 1px 3px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .divInputs input{
+        background-color: transparent;
+        border: 0;
+        padding: 15px;
+        font-size: 20px;
+        outline: none;
+        
+    }
+    
+}
+
+
+.entrarBttn{
+    background-color: transparent;
+    border: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.music-container{
+    height: 300px;
+    overflow-y: auto;
+    overflow-anchor: none;
+}
+
+.temp{
+    width: 300px;
+}
+
+@media only screen and (max-width: 350px) {
+    .temp{
+        width: 50vw;
+    }
+}
+
+.temp .music{
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    margin-top: 15px;
+    display: flex;
+    border-radius: 8px;
+    box-shadow: 1px 3px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.temp.dragged{
+    cursor: grabbing;
+}
+
+.temp.dragged .music{
+    cursor: grabbing;
+}
+
+.temp.dragged .delete-button{
+    pointer-events: none;  
+}
+
+.music > span {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: calc(100% - 20px);
+    white-space: nowrap;
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
+
+.delete-button:hover {
+	font-size: 110%;
+	color: #c0392b;
+}
+
+/* CSS */
+.button-61 {
+  align-items: center;
+  appearance: none;
+  border-radius: 4px;
+  border-style: none;
+  box-shadow: rgba(0, 0, 0, .2) 0 3px 1px -2px,rgba(0, 0, 0, .14) 0 2px 2px 0,rgba(0, 0, 0, .12) 0 1px 5px 0;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: Roboto,sans-serif;
+  font-size: .875rem;
+  font-weight: 500;
+  height: 36px;
+  justify-content: center;
+  letter-spacing: .0892857em;
+  line-height: normal;
+  min-width: 64px;
+  outline: none;
+  overflow: visible;
+  padding: 0 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: box-shadow 280ms cubic-bezier(.4, 0, .2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+  will-change: transform,opacity;
+}
+
+.button-61:hover {
+  box-shadow: rgba(0, 0, 0, .2) 0 2px 4px -1px, rgba(0, 0, 0, .14) 0 4px 5px 0, rgba(0, 0, 0, .12) 0 1px 10px 0;
+}
+
+.button-61:disabled {
+  background-color: rgba(0, 0, 0, .12);
+  box-shadow: rgba(0, 0, 0, .2) 0 0 0 0, rgba(0, 0, 0, .14) 0 0 0 0, rgba(0, 0, 0, .12) 0 0 0 0;
+  color: rgba(0, 0, 0, .37);
+  cursor: default;
+  pointer-events: none;
+}
+
+.button-61:not(:disabled) {
+  background-color: #6200ee;
+}
+
+.button-61:focus {
+  box-shadow: rgba(0, 0, 0, .2) 0 2px 4px -1px, rgba(0, 0, 0, .14) 0 4px 5px 0, rgba(0, 0, 0, .12) 0 1px 10px 0;
+}
+
+.button-61:active {
+  box-shadow: rgba(0, 0, 0, .2) 0 5px 5px -3px, rgba(0, 0, 0, .14) 0 8px 10px 1px, rgba(0, 0, 0, .12) 0 3px 14px 2px;
+  background: #A46BF5;
+}
+
+.delete-button{
+    margin-left: auto; 
+    margin-right: 0;
+}
+
+.delete-button:hover{
+    cursor: pointer;
+}
+
+/*popup*/
+
+.modal {
+    font-size: 12px;
+    background-color: #6200ee;
+    border: 1px solid #464545;
+    color: #fff;
+    border-radius: 9px;
+}
+
+.modal>.header {
+    width: 100%;
+    border-bottom: 1px solid gray;
+    font-size: 18px;
+    text-align: center;
+}
+
+.modal>.content {
+    width: 100%;
+    padding: 10px 5px;
+    
+}
+
+.modal>.actions {
+    width: 100%;
+    padding: 10px 5px;
+    margin: auto;
+    text-align: center;
+}
+
+.modal>.close {
+    cursor: pointer;
+    position: absolute;
+    display: block;
+    padding: 2px 5px;
+    line-height: 20px;
+    right: -10px;
+    top: -10px;
+    font-size: 24px;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #cfcece;
+}

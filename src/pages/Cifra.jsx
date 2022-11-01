@@ -13,6 +13,7 @@ import 'jquery-ui-bundle';
 import 'jquery-ui-bundle/jquery-ui.css';
 import {MdOutlineClose} from 'react-icons/md'
 import parse from 'html-react-parser';
+import './Cifra.css';
 
 const Cifra = () => {
   const history = useHistory();
@@ -317,13 +318,13 @@ function changeElPos(el) {
 
       </Stack>
 
-      {chordSelected !== null && sliderValue > 0 && (<Modal isOpen={ModalDisclosure.isOpen} onClose={ModalDisclosure.onClose}>
+      {chordSelected !== null && (<Modal isOpen={ModalDisclosure.isOpen} onClose={() => {ModalDisclosure.onClose; setChordSelected(null)}}>
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
           <ModalBody p="8" minH="500px" display={"flex"} flexDirection={'column'} alignItems={"center"} justifyContent={"start"}>
             <Stack align={"center"} justify={"start"}>
-              <Box w="200px" position={"relative"}>               
+              <Box w="250px" position={"relative"}>               
                 <Slider aria-label='slider-ex-4' min={minLength.current} max={maxLength.current} step={stepSize.current} mt="20px" defaultValue={sliderValue} onChange={(val) => {setSliderValue(val); console.log(val);}}>
                   <SliderMark
                     value={sliderValue}
@@ -336,8 +337,13 @@ function changeElPos(el) {
                   >
                     {chordSelected.cifra}
                   </SliderMark>
-                  <SliderMark value={0} fontSize='sm' w="200px" mt="20px">
-                  <Heading as='h6' size='2xl' w="200px" bg="purple.100" textAlign={"center"}>{chordSelected.palavra}</Heading>
+                  <SliderMark fontSize='sm' mt="20px" textAlign='center' w="100%">
+                    <HStack minW={"100%"} justifyContent={"space-between"} bg="purple.100">
+                      {chordSelected.palavra.split('').map(item => (
+                        <Heading as='h6' size='2xl'  textAlign={"center"}>{item}</Heading>
+
+                      ))}
+                    </HStack>
                   </SliderMark>
 
                   <SliderTrack bg='purple.100'>
