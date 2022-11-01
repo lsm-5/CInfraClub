@@ -238,6 +238,7 @@ const Cifra = () => {
         }
       }
       refLyricObj.current = mapLetra;
+      addDragFunc();
     }
   }, [musicSelected?.cifra])
 
@@ -256,62 +257,9 @@ const Cifra = () => {
 
   function bindClick(i, el) {
     return function () {
-      //console.log(el);
-      // el.style.zIndex="-1";
-      // el.style.position = "absolute";
-      let dim;
-      let dimEl;
-      let obj;
-      let temp;
       if (refLyricObj.current) {
-        obj = refLyricObj.current.find(item => item.id === `${i}`);
-        if (obj) {
-          temp = document.createElement('div');
-          temp.textContent = obj.palavra;
-          setChordSelected(obj);
-          temp.style.display = 'initial';
-          //$('el').append(temp)
-          dim = temp.getBoundingClientRect();
-          //temp.remove();
-        }
-
+        setChordSelected(el);
       }
-      dimEl = el.getBoundingClientRect();
-
-      currentEl.current = el;
-      //let letterW = 8.7;
-      let letterW = getTextWidth('a', el)*2;
-      if (!movedCypher.current.has(i)) {
-        let widR = obj.palavra.length - (obj.pos + 1);
-        if(widR < 0){
-          widR = 0;
-        }
-        let widL = obj.pos;
-        let offsetR = widR * letterW;
-        let offsetL = widL * letterW;
-        
-        // maxLength.current = dimEl.x + offsetR;
-        // minLength.current = dimEl.x - offsetL;
-        // stepSize.current = letterW;
-        // console.log(maxLength.current);
-        // console.log(minLength.current);
-        movedCypher.current.set(i, {maxLength: maxLength.current, minLength: minLength.current, stepSize: stepSize.current});
-        $(el).draggable({
-          axis: "x",
-          grid: [letterW,0],
-          containment: [dimEl.x - offsetL, dimEl.y, dimEl.x + offsetR, dimEl.y + dim.height],
-          cursor: "grabbing",
-          delay: 100
-        });
-      }
-      // }else{
-      //   let aux = movedCypher.current.get(i);
-      //   maxLength.current = aux.maxLength;
-      //   minLength.current = aux.minLength;
-      //   stepSize.current = aux.stepSize;
-
-      // }
-      setSliderValue(dimEl.x);
     };
 
   }
@@ -322,10 +270,50 @@ const Cifra = () => {
     let counter = 0;
     for (let i = 0; i < bArr.length; i++) {
       bArr[i].setAttribute('id', counter);
-      bArr[i].addEventListener("click", bindClick(i, bArr[i]));
       counter++; 
     }
   }
+
+function addDragFunc() {
+  let bArr = refContainer.current.getElementsByTagName('b');
+  for (let i = 0; i < bArr.length; i++) {    
+    if (refLyricObj.current) {
+      let obj = refLyricObj.current.find(item => item.id === `${i}`);
+      if (obj && obj.palavra) {
+        let temp = document.createElement('div');
+        temp.textContent = obj.palavra;
+        //setChordSelected(obj);
+        temp.style.display = 'initial';
+        //$('el').append(temp)
+        let dim = temp.getBoundingClientRect();
+        let dimEl = bArr[i].getBoundingClientRect();
+        
+        currentEl.current = bArr[i];
+        //temp.remove();
+        if (!movedCypher.current.has(i)) {
+          movedCypher.current.set(i, true);
+          let letterW = getTextWidth('a', bArr[i])*2;
+          let widR = obj.palavra.length - (obj.pos + 1);
+          if(widR < 0){
+            widR = 0;
+          }
+          let widL = obj.pos;
+          let offsetR = widR * letterW;
+          let offsetL = widL * letterW;
+          let leeWay = 0.3;
+          $(bArr[i]).draggable({
+            axis: "x",
+            grid: [letterW,0],
+            containment: [dimEl.x - offsetL - leeWay, dimEl.y, dimEl.x + offsetR + leeWay, dimEl.y + dim.height],
+            cursor: "grabbing"
+          });
+        }
+        bArr[i].addEventListener("click", bindClick(i, obj));
+      }  
+    }
+
+  }
+}
 
   function changeElPos(el) {
     //el.setAttribute('z-index', -1);
