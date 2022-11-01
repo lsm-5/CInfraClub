@@ -1,19 +1,45 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Heading, Stack, Box, Input,VStack, HStack, Image, Button, Text,
-Menu, MenuButton, MenuList, MenuItem, useDisclosure, Modal, ModalOverlay,
-ModalContent, ModalCloseButton, ModalBody, Slider, SliderTrack, SliderFilledTrack,
-SliderThumb, SliderMark } from '@chakra-ui/react';
+import {
+  Heading, Stack, Box, Input, VStack, HStack, Image, Button, Text,
+  Menu, MenuButton, MenuList, MenuItem, useDisclosure, Modal, ModalOverlay,
+  ModalContent, ModalCloseButton, ModalBody, Slider, SliderTrack, SliderFilledTrack,
+  SliderThumb, SliderMark
+} from '@chakra-ui/react';
 import { ArrowBackIcon, EditIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import { useHistory } from 'react-router-dom';
-import {useInfo} from '../hooks/info';
+import { useInfo } from '../hooks/info';
 import { FiLogOut, FiPlay } from 'react-icons/fi';
 import { MdGraphicEq } from 'react-icons/md';
 import $ from 'jquery';
 import 'jquery-ui-bundle';
 import 'jquery-ui-bundle/jquery-ui.css';
-import {MdOutlineClose} from 'react-icons/md'
+import { MdOutlineClose } from 'react-icons/md'
 import parse from 'html-react-parser';
 import './Cifra.css';
+import A from '../assets/acordes/Amaior.jpg';
+import B from '../assets/acordes/Bmaior.jpg';
+import C from '../assets/acordes/Cmaior.jpg';
+import D from '../assets/acordes/Dmaior.jpg';
+import E from '../assets/acordes/Emaior.jpg';
+import F from '../assets/acordes/Fmaior.jpg';
+import G from '../assets/acordes/Gmaior.jpg';
+import Am from '../assets/acordes/Amenor.jpg';
+import Bm from '../assets/acordes/Bmenor.jpg';
+import Cm from '../assets/acordes/Cmenor.jpg';
+import Dm from '../assets/acordes/Dmenor.jpg';
+import Em from '../assets/acordes/Emenor.jpg';
+import Fm from '../assets/acordes/Fmenor.jpg';
+import Gm from '../assets/acordes/Gmenor.jpg';
+import As_Bb from '../assets/acordes/As_Bb.jpg';
+import Asm_Bbm from '../assets/acordes/Asm_Bbm.jpg';
+import Cs_Db from '../assets/acordes/Cs_Db.jpg';
+import Csm_Dbm from '../assets/acordes/Csm_Dbm.jpg';
+import Ds_Eb from '../assets/acordes/Ds_Eb.jpg';
+import Dsm_Ebm from '../assets/acordes/Dsm_Ebm.jpg';
+import Fs_Gb from '../assets/acordes/Fs_Gb.jpg';
+import Fsm_Gbm from '../assets/acordes/Fsm_Gbm.jpg';
+import Gs_Ab from '../assets/acordes/Gs_Ab.jpg';
+import Gsm_Abm from '../assets/acordes/Gsm_Abm.jpg';
 
 const Cifra = () => {
   const history = useHistory();
@@ -26,18 +52,20 @@ const Cifra = () => {
   const minLength = useRef(0);
   const stepSize = useRef(0);
   const currentEl = useRef(null);
+  const [acordeAtual, setAcordeAtual] = useState(null);
 
   useEffect(() => {
-    if(chordSelected !== null){
+    if (chordSelected !== null) {
+      getAcorde(chordSelected.cifra)
       ModalDisclosure.onOpen();
     }
   }, [chordSelected])
 
   useEffect(() => {
     console.log('sliderValue', sliderValue)
-  },[sliderValue])
+  }, [sliderValue])
 
-  
+
   function getTextWidth(text, font) {
     // re-use canvas object for better performance
     const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
@@ -46,19 +74,72 @@ const Cifra = () => {
     const metrics = context.measureText(text);
     return metrics.width;
   }
-  
-  function getCssStyle(element, prop) {
-      return window.getComputedStyle(element, null).getPropertyValue(prop);
+
+  const acordes = ["A", "B", "C", "D", "E", "F", "G"]
+
+  function getAcorde(acorde) {
+    if (acorde.includes("A#m") || acorde.includes("Bbm")) {
+      setAcordeAtual(Asm_Bbm);
+    } else if (acorde.includes("C#m") || acorde.includes("Dbm")) {
+      setAcordeAtual(Csm_Dbm);
+    } else if (acorde.includes("D#m") || acorde.includes("Ebm")) {
+      setAcordeAtual(Dsm_Ebm);
+    } else if (acorde.includes("F#m") || acorde.includes("Gbm")) {
+      setAcordeAtual(Fsm_Gbm);
+    } else if (acorde.includes("G#m") || acorde.includes("Abm")) {
+      setAcordeAtual(Gsm_Abm);
+    } else if (acorde.includes("A#") || acorde.includes("Bb")) {
+      setAcordeAtual(As_Bb);
+    } else if (acorde.includes("C#") || acorde.includes("Db")) {
+      setAcordeAtual(Cs_Db);
+    } else if (acorde.includes("D#") || acorde.includes("Eb")) {
+      setAcordeAtual(Ds_Eb);
+    } else if (acorde.includes("F#") || acorde.includes("Gb")) {
+      setAcordeAtual(Fs_Gb);
+    } else if (acorde.includes("G#") || acorde.includes("Ab")) {
+      setAcordeAtual(Gs_Ab);
+    } else if (acorde.includes("Am")) {
+      setAcordeAtual(Am);
+    } else if (acorde.includes("Bm")) {
+      setAcordeAtual(Bm);
+    } else if (acorde.includes("Cm")) {
+      setAcordeAtual(Cm);
+    } else if (acorde.includes("Dm")) {
+      setAcordeAtual(Dm);
+    } else if (acorde.includes("Em")) {
+      setAcordeAtual(Em);
+    } else if (acorde.includes("Fm")) {
+      setAcordeAtual(Fm);
+    } else if (acorde.includes("Gm")) {
+      setAcordeAtual(Gm);
+    } else if (acorde.includes("A")) {
+      setAcordeAtual(A);
+    } else if (acorde.includes("B")) {
+      setAcordeAtual(B);
+    } else if (acorde.includes("C")) {
+      setAcordeAtual(C);
+    } else if (acorde.includes("D")) {
+      setAcordeAtual(D);
+    } else if (acorde.includes("E")) {
+      setAcordeAtual(E);
+    } else if (acorde.includes("F")) {
+      setAcordeAtual(F);
+    } else if (acorde.includes("G")) {
+      setAcordeAtual(G);
+    }
   }
-  
+
+  function getCssStyle(element, prop) {
+    return window.getComputedStyle(element, null).getPropertyValue(prop);
+  }
+
   function getCanvasFont(el = document.body) {
     const fontWeight = getCssStyle(el, 'font-weight') || 'normal';
     const fontSize = getCssStyle(el, 'font-size') || '16px';
     const fontFamily = getCssStyle(el, 'font-family') || 'Times New Roman';
-    
+
     return `${fontWeight} ${fontSize} ${fontFamily}`;
   }
-
    
    const movedCypher = useRef(new Map());
    const refContainer = useRef(null);
@@ -77,7 +158,7 @@ const Cifra = () => {
       for (let a = 0; a < arrayLines.length; a++) {
         idCyphers.push([...arrayLines[a].matchAll(regex)]);
         arrayLines[a] = arrayLines[a].replaceAll(regex, '');
-        
+
       }
 
       let mapLetra = []
@@ -137,7 +218,7 @@ const Cifra = () => {
                       y: y,
                       pastWordLength: pastWordLength,
                       pos: y - pastWordLength,
-                      id: idCyphers[i][counter-1][1]
+                      id: idCyphers[i][counter - 1][1]
                     }
                     mapLetra.push(obj);
                     skip = true;
@@ -160,13 +241,13 @@ const Cifra = () => {
     }
   }, [musicSelected?.cifra])
 
-  function getCypher(array, pos){
+  function getCypher(array, pos) {
     let cypher = '';
     let found = false;
     for (let i = pos; i < array.length && !found; i++) {
-      if(array[i] !== ' '){
+      if (array[i] !== ' ') {
         cypher += array[i]
-      }else{
+      } else {
         found = true;
       }
     }
@@ -229,23 +310,23 @@ const Cifra = () => {
   }
 
  function print() {
-  //refContainer.current.getElementsByTagName('pre')[0].style.position ='absolute';
-  let bArr = refContainer.current.getElementsByTagName('b');
-  let counter = 0;
-  for (let i = 0; i < bArr.length; i++) {
-    bArr[i].setAttribute('id', counter);
-    bArr[i].addEventListener("click", bindClick(i, bArr[i]));
-    counter++; 
+    //refContainer.current.getElementsByTagName('pre')[0].style.position ='absolute';
+    let bArr = refContainer.current.getElementsByTagName('b');
+    let counter = 0;
+    for (let i = 0; i < bArr.length; i++) {
+      bArr[i].setAttribute('id', counter);
+      bArr[i].addEventListener("click", bindClick(i, bArr[i]));
+      counter++; 
+    }
   }
-}
 
-function changeElPos(el) {
-  //el.setAttribute('z-index', -1);
-  el.setAttribute('style', `position: absolute; left: ${sliderValue}px;`)
-  //el.setAttribute('style', `transform: translate(${sliderValue}px);`)
-  // el.style.removeProperty("z-index");
-  //el.style.removeProperty("position");
-}
+  function changeElPos(el) {
+    //el.setAttribute('z-index', -1);
+    el.setAttribute('style', `position: absolute; left: ${sliderValue}px;`)
+    //el.setAttribute('style', `transform: translate(${sliderValue}px);`)
+    // el.style.removeProperty("z-index");
+    //el.style.removeProperty("position");
+  }
 
 
   return (
@@ -253,24 +334,24 @@ function changeElPos(el) {
       <Box position="absolute" top={10} right={100}>
         <HStack>
           <EditIcon cursor={"pointer"} w={5} h={5} color="red.500" onClick={() => history.push('/editar_sala')} />
-          <Heading  as='h3' size='sm'>{`Sala ${room?.senha}`}</Heading>
+          <Heading as='h3' size='sm'>{`Sala ${room?.senha}`}</Heading>
         </HStack>
       </Box>
 
-      <Box position="absolute" top={8} right={260} onClick={() => {history.push('/sala'); setMusicSelected(null)}}>
+      <Box position="absolute" top={8} right={260} onClick={() => { history.push('/sala'); setMusicSelected(null) }}>
         <HStack cursor={"pointer"}>
-        <ArrowBackIcon cursor={"pointer"} w={5} h={5} color="purple.500"  />          
-        <Heading  as='h3' size='sm'>Voltar</Heading>
+          <ArrowBackIcon cursor={"pointer"} w={5} h={5} color="purple.500" />
+          <Heading as='h3' size='sm'>Voltar</Heading>
         </HStack>
       </Box>
 
       <Box position="absolute" top={6} left={100} borderWidth={2} borderColor="purple.500" p="2">
         <HStack cursor={"pointer"} onClick={() => logOut()}>
-          <FiLogOut style={{width: 20, height: 20}} color="#805AD5" />
-          <Heading  as='h3' size='sm'>Sair</Heading>
+          <FiLogOut style={{ width: 20, height: 20 }} color="#805AD5" />
+          <Heading as='h3' size='sm'>Sair</Heading>
         </HStack>
       </Box>
-      
+
       <HStack>
         <Heading as='h1' size='xl'>{musicSelected?.name}</Heading>
         <Text>-</Text>
@@ -284,11 +365,11 @@ function changeElPos(el) {
 
             <HStack>
               <Text fontWeight={"bold"}>Tom</Text>
-              <Input defaultValue={"B"} w="60px"/>
+              <Input defaultValue={"B"} w="60px" />
             </HStack>
           </Stack>
           <Stack w="33%" justify={"start"} align={"start"} flex="1" minH={"100%"}>
-            <Text  fontWeight={"bold"}>Repertório</Text>
+            <Text fontWeight={"bold"}>Repertório</Text>
             <Menu>
               {({ isOpen }) => (
                 <>
@@ -357,18 +438,18 @@ function changeElPos(el) {
             </Stack>
             <Stack mt="16">
               <Stack borderWidth={"2px"} borderColor="purple.100" w="150px" h="200px">
-                <Text>Lucas 2</Text>
+                <Image src={acordeAtual} />
               </Stack>
 
               <Menu>
                 {({ isOpen }) => (
                   <>
                     <MenuButton isActive={isOpen} as={Button} rightIcon={<ChevronDownIcon />}>
-                      G
+                      {chordSelected.cifra}
                     </MenuButton>
                     <MenuList>
-                      {playlist.map(item => (
-                        <MenuItem onClick={() => setMusicSelected(item)}>{item.name}</MenuItem>
+                      {acordes.map(item => (
+                        <MenuItem onClick={() => {}}>{item}</MenuItem>
                       ))}
                     </MenuList>
                   </>
@@ -377,14 +458,14 @@ function changeElPos(el) {
 
               <Button onClick={() => changeElPos(currentEl.current)} colorScheme='teal' size='md'>
                 Salvar
-              </Button>  
+              </Button>
             </Stack>
           </ModalBody>
         </ModalContent>
       </Modal>)}
-     
+
     </Stack>
- );
+  );
 }
 
 export default Cifra;
