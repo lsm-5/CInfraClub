@@ -10,7 +10,7 @@ import { useHistory } from 'react-router-dom';
 import { useInfo } from '../hooks/info';
 import { FiLogOut, FiPlay } from 'react-icons/fi';
 import { MdGraphicEq } from 'react-icons/md';
-import $ from 'jquery';
+//import $ from 'jquery';
 import 'jquery-ui-bundle';
 import 'jquery-ui-bundle/jquery-ui.css';
 import { MdOutlineClose } from 'react-icons/md'
@@ -270,7 +270,7 @@ const Cifra = () => {
           temp.textContent = obj.palavra;
           setChordSelected(obj);
           temp.style.display = 'initial';
-          $('el').append(temp)
+          //$('el').append(temp)
           dim = temp.getBoundingClientRect();
           //temp.remove();
         }
@@ -279,34 +279,41 @@ const Cifra = () => {
       dimEl = el.getBoundingClientRect();
 
       currentEl.current = el;
-      let letterW = 8.7;
+      //let letterW = 8.7;
+      let letterW = getTextWidth('a', el)*2;
       if (!movedCypher.current.has(i)) {
         let widR = obj.palavra.length - (obj.pos + 1);
+        if(widR < 0){
+          widR = 0;
+        }
         let widL = obj.pos;
         let offsetR = widR * letterW;
         let offsetL = widL * letterW;
         
-        maxLength.current = dimEl.x + offsetR;
-        minLength.current = dimEl.x - offsetL;
-        stepSize.current = letterW;
-        console.log(maxLength.current);
-        console.log(minLength.current);
+        // maxLength.current = dimEl.x + offsetR;
+        // minLength.current = dimEl.x - offsetL;
+        // stepSize.current = letterW;
+        // console.log(maxLength.current);
+        // console.log(minLength.current);
         movedCypher.current.set(i, {maxLength: maxLength.current, minLength: minLength.current, stepSize: stepSize.current});
-      }else{
-        let aux = movedCypher.current.get(i);
-        maxLength.current = aux.maxLength;
-        minLength.current = aux.minLength;
-        stepSize.current = aux.stepSize;
-
+        $(el).draggable({
+          axis: "x",
+          grid: [letterW,0],
+          containment: [dimEl.x - offsetL, dimEl.y, dimEl.x + offsetR, dimEl.y + dim.height],
+          cursor: "grabbing",
+          delay: 100
+        });
       }
-      setSliderValue(dimEl.x);
+      // }else{
+      //   let aux = movedCypher.current.get(i);
+      //   maxLength.current = aux.maxLength;
+      //   minLength.current = aux.minLength;
+      //   stepSize.current = aux.stepSize;
 
-      // $(el).draggable({
-      //   axis: "x",
-      //   grid: [letterW,0],
-      //   containment: [dimEl.x - offsetL, dimEl.y, dimEl.x + offsetR, dimEl.y + dim.height]
-      // });
+      // }
+      setSliderValue(dimEl.x);
     };
+
   }
 
  function print() {
