@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Children } from 'react';
+import { ReactDOM } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {
   Heading, Stack, Box, Input, VStack, HStack, Image, Button, Text,
   Menu, MenuButton, MenuList, MenuItem, useDisclosure, Modal, ModalOverlay,
@@ -144,23 +146,25 @@ const Cifra = () => {
    const movedCypher = useRef(new Map());
    const refContainer = useRef(null);
    const refLyricObj = useRef([]);
-   const regex = /id=\"([\s\S]*?)\">/g;
+   const regex = /id=\"([\s\S]*?)\"/g;
+   const regexDrag = /class=\"([\s\S]*?)ive\;\"/g
    useEffect(() => {
     if (refContainer.current !== null) {
       print();
       //Parsing
       let yo = (refContainer.current.getElementsByTagName('pre')[0].innerHTML)
       //console.log(yo)
-      yo = yo.replaceAll('<b ', '').replaceAll('</b>', '').replaceAll('<pre>', '').replaceAll('</pre>', '');
+      yo = yo.replaceAll('<b ', '').replaceAll('</b>', '').replaceAll('<pre>', '').replaceAll('</pre>', '').replaceAll('>', '');
       let arrayLines = yo.split('\n');
       //console.log(arrayLines)
       let idCyphers = [];
       for (let a = 0; a < arrayLines.length; a++) {
         idCyphers.push([...arrayLines[a].matchAll(regex)]);
         arrayLines[a] = arrayLines[a].replaceAll(regex, '');
-
+        arrayLines[a] = arrayLines[a].replaceAll(regexDrag, '');
       }
-
+      console.log(idCyphers);
+      console.log(arrayLines);
       let mapLetra = []
 
       for (let i = 0; i < arrayLines.length; i++) {
@@ -278,7 +282,7 @@ function addDragFunc() {
   let bArr = refContainer.current.getElementsByTagName('b');
   for (let i = 0; i < bArr.length; i++) {    
     if (refLyricObj.current) {
-      let obj = refLyricObj.current.find(item => item.id === `${i}`);
+      let obj = refLyricObj.current.find(item => item.id === bArr[i].getAttribute('id'));
       if (obj && obj.palavra) {
         let temp = document.createElement('div');
         temp.textContent = obj.palavra;
@@ -290,8 +294,8 @@ function addDragFunc() {
         
         currentEl.current = bArr[i];
         //temp.remove();
-        if (!movedCypher.current.has(i)) {
-          movedCypher.current.set(i, true);
+        let hasEl = movedCypher.current.get(i);
+        if (!hasEl) {
           let letterW = getTextWidth('a', bArr[i])*2;
           let widR = obj.palavra.length - (obj.pos + 1);
           if(widR < 0){
@@ -306,6 +310,14 @@ function addDragFunc() {
             grid: [letterW,0],
             containment: [dimEl.x - offsetL - leeWay, dimEl.y, dimEl.x + offsetR + leeWay, dimEl.y + dim.height],
             cursor: "grabbing"
+          });
+          movedCypher.current.set(i, {grid: letterW, axis: "x", cursor: "grabbing", x1: dimEl.x - offsetL - leeWay, y1: dimEl.y, x2: dimEl.x + offsetR + leeWay, y2: dimEl.y + dim.height});
+        }else{
+          $(bArr[i]).draggable({
+            axis: hasEl.axis,
+            grid: [hasEl.grid,0],
+            containment: [hasEl.x1, hasEl.y1, hasEl.x2, hasEl.y2],
+            cursor: hasEl.cursor
           });
         }
         bArr[i].addEventListener("click", bindClick(i, obj));
@@ -323,7 +335,70 @@ function addDragFunc() {
     //el.style.removeProperty("position");
   }
 
+  
+  function testing() {
+    setIsShown(true);
+    let aux = refContainer.current.getElementsByTagName('pre')[0];
+    let wrapper = document.createElement('pre');
+    wrapper.innerHTML = aux.innerHTML;
+    aux.parentNode.replaceChild(wrapper,aux);
+    let bArr = refContainer.current.getElementsByTagName('b');
 
+
+    for (let i = 0; i < bArr.length; i++) {
+      if (refLyricObj.current) {
+        console.log(refLyricObj.current);
+        let obj = refLyricObj.current.find(item => item.id === bArr[i].getAttribute('id'));
+        console.log(obj);
+        if (obj && obj.palavra) {
+          console.log('object');
+          let temp = document.createElement('div');
+          temp.textContent = obj.palavra;
+          //setChordSelected(obj);
+          temp.style.display = 'initial';
+          //$('el').append(temp)
+          let dim = temp.getBoundingClientRect();
+          let dimEl = bArr[i].getBoundingClientRect();
+          
+          currentEl.current = bArr[i];
+          //temp.remove();
+          //if (!movedCypher.current.has(i)) {
+            //movedCypher.current.set(i, true);
+          let hasEl = movedCypher.current.get(i);
+          if (!hasEl) {
+            let letterW = getTextWidth('a', bArr[i]) * 2;
+            let widR = obj.palavra.length - (obj.pos + 1);
+            if (widR < 0) {
+              widR = 0;
+            }
+            let widL = obj.pos;
+            let offsetR = widR * letterW;
+            let offsetL = widL * letterW;
+            let leeWay = 0.3;
+            $(bArr[i]).draggable({
+              axis: "x",
+              grid: [letterW, 0],
+              containment: [dimEl.x - offsetL - leeWay, dimEl.y, dimEl.x + offsetR + leeWay, dimEl.y + dim.height],
+              cursor: "grabbing"
+            });
+            movedCypher.current.set(i, { grid: letterW, axis: "x", cursor: "grabbing", x1: dimEl.x - offsetL - leeWay, y1: dimEl.y, x2: dimEl.x + offsetR + leeWay, y2: dimEl.y + dim.height });
+          } else {
+            $(bArr[i]).draggable({
+              axis: hasEl.axis,
+              grid: [hasEl.grid, 0],
+              containment: [hasEl.x1, hasEl.y1, hasEl.x2, hasEl.y2],
+              cursor: hasEl.cursor
+            });
+          }
+          //}
+          bArr[i].addEventListener("click", bindClick(i, obj));
+        }  
+      }
+    }
+  }
+  
+
+  
   return (
     <Stack align="center" justify="start" flex={1} minH="100vh" p="5%" minW="90vw">
       <Box position="absolute" top={10} right={100}>
@@ -386,8 +461,12 @@ function addDragFunc() {
           <VStack>
             {Object.keys(musicSelected?.cifra).length > 0 && (
               <span ref={refContainer} className='musicInfo'>
+                <Button onClick={() => testing()} colorScheme='teal' size='md'>
+                  Testing
+                </Button>
                 {parse(musicSelected?.cifra)}
               </span>
+              
             )}
           </VStack>
         </Stack>
