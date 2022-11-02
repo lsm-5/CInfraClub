@@ -42,10 +42,12 @@ import Fs_Gb from '../assets/acordes/Fs_Gb.jpg';
 import Fsm_Gbm from '../assets/acordes/Fsm_Gbm.jpg';
 import Gs_Ab from '../assets/acordes/Gs_Ab.jpg';
 import Gsm_Abm from '../assets/acordes/Gsm_Abm.jpg';
+import { doc, onSnapshot } from "firebase/firestore";
+import db from '../firebase-config';
 
 const Cifra = () => {
   const history = useHistory();
-  const { room, logOut, musicSelected, playlist, setMusicSelected } = useInfo();
+  const { room, logOut, musicSelected, playlist, setMusicSelected, updateCifra } = useInfo();
   const ModalDisclosure = useDisclosure()
   const [sliderValue, setSliderValue] = useState(0);
   const [urlAudio, setUrlAudio] = useState('');
@@ -57,16 +59,24 @@ const Cifra = () => {
   const [acordeAtual, setAcordeAtual] = useState(null);
 
   useEffect(() => {
+    console.log('musicSelected', musicSelected)
+  },[musicSelected])
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "Salas", room.id, 'playlist', musicSelected.id), (doc) => {
+      setMusicSelected(prev => ({...prev, cifraFormatted: doc.data().cifraFormatted, tom: doc.data().tom}));
+    });
+
+    // Stop listening for updates when no longer required
+    return () => unsub();
+  },[musicSelected.id])
+
+  useEffect(() => {
     if (chordSelected !== null) {
       getAcorde(chordSelected.cifra)
       ModalDisclosure.onOpen();
     }
   }, [chordSelected])
-
-  useEffect(() => {
-    console.log('sliderValue', sliderValue)
-  }, [sliderValue])
-
 
   function getTextWidth(text, font) {
     // re-use canvas object for better performance
@@ -149,7 +159,7 @@ const Cifra = () => {
    const regex = /id=\"([\s\S]*?)\"/g;
    const regexDrag = /class=\"([\s\S]*?)ive\;\"/g
    useEffect(() => {
-    if (refContainer.current !== null) {
+    if (refContainer.current !== null && musicSelected.cifraFormatted === null) {
       print();
       //Parsing
       let yo = (refContainer.current.getElementsByTagName('pre')[0].innerHTML)
@@ -163,8 +173,6 @@ const Cifra = () => {
         arrayLines[a] = arrayLines[a].replaceAll(regex, '');
         arrayLines[a] = arrayLines[a].replaceAll(regexDrag, '');
       }
-      console.log(idCyphers);
-      console.log(arrayLines);
       let mapLetra = []
 
       for (let i = 0; i < arrayLines.length; i++) {
@@ -337,21 +345,16 @@ function addDragFunc() {
 
   
   function testing() {
-    setIsShown(true);
     let aux = refContainer.current.getElementsByTagName('pre')[0];
     let wrapper = document.createElement('pre');
     wrapper.innerHTML = aux.innerHTML;
     aux.parentNode.replaceChild(wrapper,aux);
     let bArr = refContainer.current.getElementsByTagName('b');
 
-
     for (let i = 0; i < bArr.length; i++) {
       if (refLyricObj.current) {
-        console.log(refLyricObj.current);
         let obj = refLyricObj.current.find(item => item.id === bArr[i].getAttribute('id'));
-        console.log(obj);
         if (obj && obj.palavra) {
-          console.log('object');
           let temp = document.createElement('div');
           temp.textContent = obj.palavra;
           //setChordSelected(obj);
@@ -395,6 +398,8 @@ function addDragFunc() {
         }  
       }
     }
+
+    updateCifra(musicSelected.id, refContainer.current.getElementsByTagName('pre')[0].outerHTML)
   }
   
 
@@ -459,7 +464,7 @@ function addDragFunc() {
 
         <Stack w="100%" align={"start"} justify="start">
           <VStack>
-            {Object.keys(musicSelected?.cifra).length > 0 && (
+            {Object.keys(musicSelected?.cifra).length > 0 && musicSelected.cifraFormatted === null && (
               <span ref={refContainer} className='musicInfo'>
                 <Button onClick={() => testing()} colorScheme='teal' size='md'>
                   Testing
@@ -467,6 +472,14 @@ function addDragFunc() {
                 {parse(musicSelected?.cifra)}
               </span>
               
+            )}
+            {Object.keys(musicSelected?.cifra).length > 0 && musicSelected.cifraFormatted !== null && (
+              <span ref={refContainer} className='musicInfo'>
+                <Button onClick={() => testing()} colorScheme='teal' size='md'>
+                  Testing
+                </Button>
+                {parse(musicSelected?.cifraFormatted)}
+              </span>
             )}
           </VStack>
         </Stack>
@@ -480,7 +493,7 @@ function addDragFunc() {
           <ModalBody p="8" minH="500px" display={"flex"} flexDirection={'column'} alignItems={"center"} justifyContent={"start"}>
             <Stack align={"center"} justify={"start"}>
               <Box w="250px" position={"relative"}>               
-                <Slider aria-label='slider-ex-4' min={minLength.current} max={maxLength.current} step={stepSize.current} mt="20px" defaultValue={sliderValue} onChange={(val) => {setSliderValue(val); console.log(val);}}>
+                <Slider aria-label='slider-ex-4' min={minLength.current} max={maxLength.current} step={stepSize.current} mt="20px" defaultValue={sliderValue} onChange={(val) => {setSliderValue(val);}}>
                   <SliderMark
                     value={sliderValue}
                     textAlign='center'

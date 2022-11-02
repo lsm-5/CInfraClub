@@ -22,6 +22,7 @@ type Music = {
   name: string;
   author: string;
   cifra: string;
+  cifraFormatted: null | string;
   tom: string;
   searchAuthor: string;
   searchName: string;
@@ -41,6 +42,8 @@ interface InfoContext {
   musicSelected: Music | null;
   handleSearch: (input: string) => void;
   searchMusic: Music[];
+  updateCifra: (playlistId: string, cifra: string) => Promise<void>
+  updateTom: (playlistId: string, tom: string) => Promise<void>
 }
 
 const InfoContext = createContext<InfoContext | null>(null);
@@ -227,6 +230,7 @@ const InfoProvider = ({ children }: Props) => {
               searchName: processed.response.docs[i].u,
               cifra: '',
               tom: '',
+              cifraFormatted: null,
             }
             musicList.push(musica);
           }
@@ -236,6 +240,42 @@ const InfoProvider = ({ children }: Props) => {
     } catch (error) {
       alert("erro ao buscar");
     }
+  }
+
+  async function updateCifra(playlistId: string, cifra: string){
+    if (playlistId === '') {
+      GenerateToast('Atenção', 'Insira uma playlist válida', 'error');
+      return;
+    }
+
+    if (cifra === '') {
+      GenerateToast('Atenção', 'Insira uma cifra válida', 'error');
+      return;
+    }
+
+    console.log("chamou updateCifra")
+    console.log("salvou")
+    console.log("cifra", cifra)
+    const reference = doc(db,COLLECTION_SALAS + "/" + room?.id + "/playlist/" + playlistId);
+    await updateDoc(reference, {cifraFormatted: cifra})
+
+    GenerateToast('Sucesso', 'Cifra atualizada', 'success');
+  }
+
+  async function updateTom(playlistId: string, tom: string){
+    if (playlistId === '') {
+      GenerateToast('Atenção', 'Insira uma playlist válida', 'error');
+      return;
+    }
+
+    if (tom === '') {
+      GenerateToast('Atenção', 'Insira um tom válido', 'error');
+      return;
+    }
+
+    const reference = doc(db,COLLECTION_SALAS + "/" + room?.id + "/playlist/" + playlistId);
+    await updateDoc(reference, {tom})
+    //GenerateToast('Sucesso', 'Tom atualizado', 'success');
   }
 
   const value = React.useMemo(
@@ -253,6 +293,8 @@ const InfoProvider = ({ children }: Props) => {
       setMusicSelected,
       handleSearch,
       searchMusic,
+      updateCifra,
+      updateTom,
     }),
     [
       room,
@@ -268,6 +310,8 @@ const InfoProvider = ({ children }: Props) => {
       setMusicSelected,
       handleSearch,
       searchMusic,
+      updateCifra,
+      updateTom,
     ],
   );
 
