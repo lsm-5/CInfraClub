@@ -72,6 +72,59 @@ const Cifra = () => {
   },[musicSelected.id])
 
   useEffect(() => {
+    let bArr = refContainer.current.getElementsByTagName('b');
+    console.log('rodou o useEffect', bArr)
+
+    for (let i = 0; i < bArr.length; i++) {
+      if (refLyricObj.current) {
+        let obj = refLyricObj.current.find(item => item.id === bArr[i].getAttribute('id'));
+        if (obj && obj.palavra) {
+          let temp = document.createElement('div');
+          temp.textContent = obj.palavra;
+          //setChordSelected(obj);
+          temp.style.display = 'initial';
+          //$('el').append(temp)
+          let dim = temp.getBoundingClientRect();
+          let dimEl = bArr[i].getBoundingClientRect();
+          
+          currentEl.current = bArr[i];
+          //temp.remove();
+          //if (!movedCypher.current.has(i)) {
+            //movedCypher.current.set(i, true);
+          let hasEl = movedCypher.current.get(i);
+          if (!hasEl) {
+            let letterW = getTextWidth('a', bArr[i]) * 2;
+            let widR = obj.palavra.length - (obj.pos + 1);
+            if (widR < 0) {
+              widR = 0;
+            }
+            let widL = obj.pos;
+            let offsetR = widR * letterW;
+            let offsetL = widL * letterW;
+            let leeWay = 0.3;
+            $(bArr[i]).draggable({
+              axis: "x",
+              grid: [letterW, 0],
+              containment: [dimEl.x - offsetL - leeWay, dimEl.y, dimEl.x + offsetR + leeWay, dimEl.y + dim.height],
+              cursor: "grabbing"
+            });
+            movedCypher.current.set(i, { grid: letterW, axis: "x", cursor: "grabbing", x1: dimEl.x - offsetL - leeWay, y1: dimEl.y, x2: dimEl.x + offsetR + leeWay, y2: dimEl.y + dim.height });
+          } else {
+            $(bArr[i]).draggable({
+              axis: hasEl.axis,
+              grid: [hasEl.grid, 0],
+              containment: [hasEl.x1, hasEl.y1, hasEl.x2, hasEl.y2],
+              cursor: hasEl.cursor
+            });
+          }
+          //}
+          bArr[i].addEventListener("click", bindClick(i, obj));
+        }  
+      }
+    }
+  },[musicSelected.cifraFormatted])
+
+  useEffect(() => {
     if (chordSelected !== null) {
       getAcorde(chordSelected.cifra)
       ModalDisclosure.onOpen();
