@@ -26,6 +26,8 @@ type Music = {
   tom: string;
   searchAuthor: string;
   searchName: string;
+  refLyricObj: any;
+  movedCypher: any;
 }
 
 interface InfoContext {
@@ -42,7 +44,7 @@ interface InfoContext {
   musicSelected: Music | null;
   handleSearch: (input: string) => void;
   searchMusic: Music[];
-  updateCifra: (playlistId: string, cifra: string) => Promise<void>
+  updateCifra: (playlistId: string, cifra: string, refLyricObj: any, movedCypher: any) => Promise<void>
   updateTom: (playlistId: string, tom: string) => Promise<void>
 }
 
@@ -231,6 +233,8 @@ const InfoProvider = ({ children }: Props) => {
               cifra: '',
               tom: '',
               cifraFormatted: null,
+              refLyricObj: null,
+              movedCypher: null,
             }
             musicList.push(musica);
           }
@@ -242,7 +246,7 @@ const InfoProvider = ({ children }: Props) => {
     }
   }
 
-  async function updateCifra(playlistId: string, cifra: string){
+  async function updateCifra(playlistId: string, cifra: string, refLyricObj: any, movedCypher: any){
     if (playlistId === '') {
       GenerateToast('Atenção', 'Insira uma playlist válida', 'error');
       return;
@@ -254,13 +258,23 @@ const InfoProvider = ({ children }: Props) => {
     }
 
     console.log("chamou updateCifra")
-    console.log("salvou")
-    console.log("cifra", cifra)
     const reference = doc(db,COLLECTION_SALAS + "/" + room?.id + "/playlist/" + playlistId);
-    await updateDoc(reference, {cifraFormatted: cifra})
+    await updateDoc(reference, {cifraFormatted: cifra, refLyricObj: refLyricObj, movedCypher: JSON.stringify(movedCypher, replacer)})
 
     GenerateToast('Sucesso', 'Cifra atualizada', 'success');
   }
+
+  function replacer(key, value) {
+    if(value instanceof Map) {
+      return {
+        dataType: 'Map',
+        value: Array.from(value.entries()), // or with spread: value: [...value]
+      };
+    } else {
+      return value;
+    }
+  }
+
 
   async function updateTom(playlistId: string, tom: string){
     if (playlistId === '') {
