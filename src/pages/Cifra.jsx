@@ -57,14 +57,14 @@ const Cifra = () => {
   const stepSize = useRef(0);
   const currentEl = useRef(null);
   const [acordeAtual, setAcordeAtual] = useState(null);
-
+  const newMovedCypher = useRef(new Map())
   useEffect(() => {
     console.log('musicSelected', musicSelected)
   },[musicSelected])
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "Salas", room.id, 'playlist', musicSelected.id), (doc) => {
-      setMusicSelected(prev => ({...prev, cifraFormatted: doc.data().cifraFormatted, tom: doc.data().tom, refLyricObj: doc.data().refLyricObj, movedCypher: doc.data().movedCypher, reviver}));
+      setMusicSelected(prev => ({...prev, cifraFormatted: doc.data().cifraFormatted, tom: doc.data().tom, refLyricObj: doc.data().refLyricObj, movedCypher: doc.data().movedCypher}));
     });
 
     // Stop listening for updates when no longer required
@@ -83,7 +83,7 @@ const Cifra = () => {
 
   useEffect(() => {
     if (musicSelected.cifraFormatted !== null){
-
+      //const newMovedCypher = new Map();
       let bArr = refContainer.current.getElementsByTagName('b');
       console.log('rodou o useEffect', musicSelected)
       
@@ -103,9 +103,9 @@ const Cifra = () => {
           //temp.remove();
           //if (!movedCypher.current.has(i)) {
             //movedCypher.current.set(i, true);
-            const newMovedCypher = JSON.parse(musicSelected.movedCypher, reviver)
-            console.log('newMovedCypher', newMovedCypher)
-            let hasEl = newMovedCypher.get(i);
+            newMovedCypher.current = JSON.parse(musicSelected.movedCypher, reviver)
+            console.log('newMovedCypher', newMovedCypher.current)
+            let hasEl = newMovedCypher.current.get(i);
             if (!hasEl) {
               let letterW = getTextWidth('a', bArr[i]) * 2;
               let widR = obj.palavra.length - (obj.pos + 1);
@@ -122,8 +122,9 @@ const Cifra = () => {
                 containment: [dimEl.x - offsetL - leeWay, dimEl.y, dimEl.x + offsetR + leeWay, dimEl.y + dim.height],
                 cursor: "grabbing"
               });
-              movedCypher.current.set(i, { grid: letterW, axis: "x", cursor: "grabbing", x1: dimEl.x - offsetL - leeWay, y1: dimEl.y, x2: dimEl.x + offsetR + leeWay, y2: dimEl.y + dim.height });
+              newMovedCypher.current.set(i, { grid: letterW, axis: "x", cursor: "grabbing", x1: dimEl.x - offsetL - leeWay, y1: dimEl.y, x2: dimEl.x + offsetR + leeWay, y2: dimEl.y + dim.height });
             } else {
+              console.log('setting new draggable');
               $(bArr[i]).draggable({
                 axis: hasEl.axis,
                 grid: [hasEl.grid, 0],
@@ -137,7 +138,7 @@ const Cifra = () => {
         }
       }
 
-      updateCifra(musicSelected.id, refContainer.current.getElementsByTagName('pre')[0].outerHTML, musicSelected.refLyricObj, musicSelected.movedCypher)
+      updateCifra(musicSelected.id, refContainer.current.getElementsByTagName('pre')[0].outerHTML, musicSelected.refLyricObj, newMovedCypher.current)
 
     }
 
@@ -425,7 +426,7 @@ function addDragFunc() {
     if (musicSelected.cifraFormatted === null){
       updateCifra(musicSelected.id, refContainer.current.getElementsByTagName('pre')[0].outerHTML, refLyricObj, movedCypher.current)
     } else {
-      updateCifra(musicSelected.id, refContainer.current.getElementsByTagName('pre')[0].outerHTML, musicSelected.refLyricObj, musicSelected.movedCypher)
+      updateCifra(musicSelected.id, refContainer.current.getElementsByTagName('pre')[0].outerHTML, musicSelected.refLyricObj, newMovedCypher.current)
 
     }
   }
