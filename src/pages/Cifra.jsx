@@ -47,7 +47,7 @@ import db from '../firebase-config';
 
 const Cifra = () => {
   const history = useHistory();
-  const { room, logOut, musicSelected, playlist, setMusicSelected, updateCifra } = useInfo();
+  const { room, logOut, musicSelected, playlist, setMusicSelected, updateCifra, getMusicCifra } = useInfo();
   const ModalDisclosure = useDisclosure()
   const [sliderValue, setSliderValue] = useState(0);
   const [urlAudio, setUrlAudio] = useState('');
@@ -63,12 +63,12 @@ const Cifra = () => {
   },[musicSelected])
 
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, "Salas", room.id, 'playlist', musicSelected.id), (doc) => {
-      setMusicSelected(prev => ({...prev, cifraFormatted: doc.data().cifraFormatted, tom: doc.data().tom, refLyricObj: doc.data().refLyricObj, movedCypher: doc.data().movedCypher}));
-    });
-
-    // Stop listening for updates when no longer required
-    return () => unsub();
+    if(musicSelected !== null){
+      setInterval(() => {
+        console.log('ping cifra')
+        getMusicCifra(musicSelected.id)
+      }, 1000)
+    }
   },[musicSelected.id])
 
   

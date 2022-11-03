@@ -46,6 +46,7 @@ interface InfoContext {
   searchMusic: Music[];
   updateCifra: (playlistId: string, cifra: string, refLyricObj: any, movedCypher: any) => Promise<void>
   updateTom: (playlistId: string, tom: string) => Promise<void>
+  getMusicCifra: (playlistId: string) => Promise<void>
 }
 
 const InfoContext = createContext<InfoContext | null>(null);
@@ -292,6 +293,13 @@ const InfoProvider = ({ children }: Props) => {
     //GenerateToast('Sucesso', 'Tom atualizado', 'success');
   }
 
+  async function getMusicCifra(playlistId: string){
+    const reference = doc(db,COLLECTION_SALAS + "/" + room?.id + "/playlist/" + playlistId);
+    const docSnap = await getDoc(reference);
+
+    setMusicSelected({id: docSnap.id, ...docSnap.data()} as Music)
+  }
+
   const value = React.useMemo(
     () => ({
       room,
@@ -309,6 +317,7 @@ const InfoProvider = ({ children }: Props) => {
       searchMusic,
       updateCifra,
       updateTom,
+      getMusicCifra,
     }),
     [
       room,
@@ -326,6 +335,7 @@ const InfoProvider = ({ children }: Props) => {
       searchMusic,
       updateCifra,
       updateTom,
+      getMusicCifra,
     ],
   );
 
