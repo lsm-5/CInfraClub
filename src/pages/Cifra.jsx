@@ -47,7 +47,7 @@ import db from '../firebase-config';
 
 const Cifra = () => {
   const history = useHistory();
-  const { room, logOut, musicSelected, playlist, setMusicSelected, updateCifra, getMusicCifra } = useInfo();
+  const { room, logOut, musicSelected, playlist, setMusicSelected, updateCifra, getMusicCifra, updateTom } = useInfo();
   const ModalDisclosure = useDisclosure()
   const [sliderValue, setSliderValue] = useState(0);
   const [urlAudio, setUrlAudio] = useState('');
@@ -469,7 +469,7 @@ function addDragFunc() {
 
             <HStack>
               <Text fontWeight={"bold"}>Tom</Text>
-              <Input defaultValue={"B"} w="60px" />
+              <Input value={musicSelected.tom} w="60px" onChange={e => updateTom(musicSelected.id, e.target.value)} />
             </HStack>
           </Stack>
           <Stack w="33%" justify={"start"} align={"start"} flex="1" minH={"100%"}>
@@ -496,7 +496,7 @@ function addDragFunc() {
             {Object.keys(musicSelected?.cifra).length > 0 && musicSelected.cifraFormatted === null && (
               <span ref={refContainer} className='musicInfo'>
                 <Button onClick={() => testing()} colorScheme='teal' size='md'>
-                  Testing
+                  Salvar atualização
                 </Button>
                 {parse(musicSelected?.cifra)}
               </span>
@@ -505,7 +505,7 @@ function addDragFunc() {
             {Object.keys(musicSelected?.cifra).length > 0 && musicSelected.cifraFormatted !== null && (
               <span ref={refContainer} className='musicInfo'>
                 <Button onClick={() => testing()} colorScheme='teal' size='md'>
-                  Testing
+                Salvar atualização
                 </Button>
                 {parse(musicSelected?.cifraFormatted)}
               </span>
